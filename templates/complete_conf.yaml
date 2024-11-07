@@ -1,0 +1,25 @@
+conf:
+  elasticsearch:
+    x-api-key:
+  path_filter:
+  ldap_configuration:
+    hosts:
+  
+tag_scan_conf:
+  file_count:
+
+facet_scan_conf:
+  facet_files_index:
+    name:
+  facet_files_test_index:
+    name:
+
+fbi_scan_conf:
+  fbi_files_index:
+    name:
+    calculate_md5:
+    scan_level:
+  fbi_files_test_index:
+    name:
+    calculate_md5:
+    scan_level:

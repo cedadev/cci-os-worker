@@ -7,9 +7,19 @@ license = "\"{file = 'LICENSE'}\""
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
-
+python = "^3.10"
+pyyaml = "^6.0.2"
+elasticsearch = "^7"
+ceda-fbs = { git = 'https://github.com/cedadev/ceda-fbs-cci.git', tag = 'v0.2.1b' }
+directory-tree = { git = "https://github.com/cedadev/ceda-directory-tree.git", tag = "v1.1.2"}
+ceda-elasticsearch-tools = { git = "https://github.com/cedadev/ceda-elasticsearch-tools.git", tag = "v2.4.0"}
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+tagscan = "cci_os_worker.tag_scan:tag_main"
+facetscan = "cci_os_worker.facet_scan:facet_main"
+fbi_update = "cci_os_worker.fbi_update:fbi_main"
+cci_os_update = "cci_os_worker.run_all:main"
