@@ -17,7 +17,13 @@ import hashlib
 from facet_scanner.core.facet_scanner import FacetScanner
 from ceda_elasticsearch_tools.elasticsearch import CEDAElasticsearchClient
 
-class FacetUpdateHandler:
+from .utils import load_config, UpdateHandler, ch
+
+# Logger setup
+logger = logging.getLogger(__name__)
+logger.addHandler(ch)
+
+class FacetUpdateHandler(UpdateHandler):
 
     def __init__(self, conf: dict, dryrun: bool = False, test: bool = False):
         """
@@ -26,8 +32,7 @@ class FacetUpdateHandler:
         """
         logger.info('Loading Facet Updater')
 
-        self._dryrun = dryrun
-        self._test = test
+        super().__init__(conf, dryrun=dryrun, test=test)
 
         self.facet_scanner = FacetScanner()
 
@@ -35,24 +40,7 @@ class FacetUpdateHandler:
 
         self.es = CEDAElasticsearchClient(headers={'x-api-key': api_key})
 
-    def process_deposits(self, datafile_path: str):
-        """
-        Process deposits from the dataset file given to this function
-        """
-
-        if not os.path.isfile(datafile_path):
-            raise ValueError(
-                f'Filepath {datafile_path} is not accessible'
-            )
-
-        with open(datafile_path) as f:
-            datasets = [r.strip() for r in f.readlines()]
-
-        # Process all files individually.
-        for fp in datasets:
-            self._process_file(fp)
-
-    def _process_file(self, filepath: str):
+    def __process_file(self, filepath: str):
         """
         Perform facet scanning for a specific filepath
         """
@@ -82,3 +70,38 @@ class FacetUpdateHandler:
             id=id,
             body={'doc': project, 'doc_as_upsert': True}
         )
+
+
+def _get_command_line_args():
+    """
+    Get the command line arguments for the facet scan
+    """
+    parser = argparse.ArgumentParser(description='Entrypoint for the CCI OS Worker on the CMD Line')
+    parser.add_argument('datafile_path', type=str, help='Path to the "datasets.txt" file')
+    parser.add_argument('conf', type=str, help='Path to Yaml config file for Elasticsearch')
+
+    parser.add_argument('-d','--dryrun', dest=dryrun, action='store_true', help='Perform in dryrun mode')
+    parser.add_argument('-t','--test', dest=test, action='store_true', help='Perform in test/staging mode')
+
+    args = parser.parse_args()
+
+    return {
+        'datafile_path': args.datafile_path,
+        'conf': args.conf,
+        'dryrun': args.dryrun,
+        'test': args.test
+    }
+
+def facet_main(args: dict = None):
+    if args is None:
+        args = _get_command_line_args()
+    if isinstance(args['conf'], str):
+        conf = load_config(args['conf'])
+
+    fs = FacetUpdateHandler(conf, dryrun=args['dryrun'], test=args['test'])
+    fail_list = fs.process_deposits(args['datafile_path'])
+
+    # Register the fail_list with logs so it can be picked up in reruns.
+
+if __name__ == '__main__':
+    facet_main()
