@@ -6,6 +6,7 @@ __license__ = 'BSD - see LICENSE file in top-level package directory'
 __contact__ = 'daniel.westwood@stfc.ac.uk'
 
 from tag_scanner.tagger import ProcessDatasets
+import logging
 
 from .utils import load_config, load_datasets, UpdateHandler, ch
 
