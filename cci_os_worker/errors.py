@@ -5,6 +5,13 @@ __copyright__ = 'Copyright 2024 United Kingdom Research and Innovation'
 __license__ = 'BSD - see LICENSE file in top-level package directory'
 __contact__ = 'daniel.westwood@stfc.ac.uk'
 
+import logging
+from cci_os_worker import logstream
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logstream)
+logger.propagate = False
+
 class HandlerError(Exception):
     """A handler could not be identified for this file"""
     def __init__(self, filename = '<Not Given>', verbose = 0):

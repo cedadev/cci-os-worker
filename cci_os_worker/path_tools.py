@@ -17,6 +17,13 @@ from directory_tree import DatasetNode
 
 from typing import Optional, Tuple, List
 
+import logging
+from cci_os_worker import logstream
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logstream)
+logger.propagate = False
+
 class PathTools:
     def __init__(
         self,

@@ -13,6 +13,7 @@ Please see this repository for further details
 """
 
 import magic as magic_number_reader
+import logging
 
 from .utils import load_config, UpdateHandler, ch
 from .path_tools import PathTools
@@ -20,9 +21,11 @@ from .errors import HandlerError, DocMetadataError
 
 from ceda_fbs.src.fbs.proc.file_handlers.handler_picker import HandlerPicker
 
-# Logger setup
+from cci_os_worker import logstream
+
 logger = logging.getLogger(__name__)
-logger.addHandler(ch)
+logger.addHandler(logstream)
+logger.propagate = False
 
 def get_file_header(filename):
     """

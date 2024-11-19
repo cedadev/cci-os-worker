@@ -9,6 +9,15 @@ from .fbi_update import fbi_main
 from .facet_scan import facet_main
 from .tag_scan import tag_main
 
+import argparse
+import logging
+
+from cci_os_worker import logstream
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logstream)
+logger.propagate = False
+
 def get_command_line_arguments():
     """
     Arguments from the command line:
@@ -27,8 +36,8 @@ def get_command_line_arguments():
     parser.add_argument('--skip-tag', dest='skip_tag', action='store_true', help='Skip the Tag Scan')
     parser.add_argument('--skip-fbi', dest='skip_fbi', action='store_true', help='Skip the Fbi Updates')
 
-    parser.add_argument('-d','--dryrun', dest=dryrun, action='store_true', help='Perform in dryrun mode')
-    parser.add_argument('-t','--test', dest=test, action='store_true', help='Perform in test/staging mode')
+    parser.add_argument('-d','--dryrun', dest='dryrun', action='store_true', help='Perform in dryrun mode')
+    parser.add_argument('-t','--test', dest='test', action='store_true', help='Perform in test/staging mode')
 
     args = parser.parse_args()
 

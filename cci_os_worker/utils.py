@@ -9,8 +9,29 @@ import os
 import yaml
 import logging
 
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
+from cci_os_worker import logstream
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logstream)
+logger.propagate = False
+
+def set_verbose(level: int):
+    """
+    Reset the logger basic config.
+    """
+
+    levels = [
+        logging.WARN,
+        logging.INFO,
+        logging.DEBUG,
+    ]
+
+    if level >= len(levels):
+        level = len(levels) - 1
+
+    for name in logging.root.manager.loggerDict:
+        lg = logging.getLogger(name)
+        lg.setLevel(levels[level])
 
 def load_config(conf: str):
     """
@@ -44,10 +65,12 @@ class UpdateHandler:
         self._test = test
         self._conf = conf
 
-    def process_deposits(self, datafile_path: str):
+    def process_deposits(self, datafile_path: str, prefix: str = '', file_limit = None):
         """
         Process deposits from the dataset file given to this function
         """
+
+        logger.info(f'Processing deposits for {datafile_path}')
 
         if not os.path.isfile(datafile_path):
             raise ValueError(
@@ -55,13 +78,19 @@ class UpdateHandler:
             )
 
         with open(datafile_path) as f:
-            datasets = [r.strip() for r in f.readlines()]
+            datasets = [prefix + r.strip() for r in f.readlines()]
+
+        if file_limit != None:
+            datasets = datasets[:file_limit]
+
+        total = len(datasets)
 
         fail_list = []
         # Process all files individually.
-        for fp in datasets:
-            status = self._process_file(fp)
+        for idx, fp in enumerate(datasets):
+            status = self._process_file(fp, index=idx, total=total)
             if status != 0:
+                raise status
                 logger.error(status)
                 fail_list.append(fp)
         return fail_list
@@ -88,13 +117,13 @@ class UpdateHandler:
                 fail_list.append((fp, status))
         return fail_list
 
-    def _process_file(self, filepath: str):
+    def _process_file(self, filepath: str, index: int = None, total: int = None):
         """
         Safe processing of filepath
         """
 
         try:
-            self.__process_file(filepath)
+            self._single_process_file(filepath, index=index, total=total)
             return 0
         except Exception as err:
             return err
