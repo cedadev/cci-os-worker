@@ -14,6 +14,7 @@ __contact__ = 'daniel.westwood@stfc.ac.uk'
 import logging
 import hashlib
 import argparse
+import os
 
 from facet_scanner.core.facet_scanner import FacetScanner
 from ceda_elasticsearch_tools.elasticsearch import CEDAElasticsearchClient
@@ -112,6 +113,12 @@ def facet_main(args: dict = None):
         args = _get_command_line_args()
     if isinstance(args['conf'], str):
         conf = load_config(args['conf'])
+
+    if conf is None:
+        return
+    if not os.path.isfile(args['datafile_path']):
+        logger.error(f'Inaccessible Datafile - {args["datafile_path"]}')
+        return
 
     set_verbose(args['verbose'])
 

@@ -42,7 +42,8 @@ def load_config(conf: str):
             config = yaml.safe_load(f)
         return config
     else:
-        raise ValueError(f'Config file {conf} unreachable')
+        logger.error(f'Config file {conf} unreachable')
+        return None
 
 def load_datasets(datafile_path: str):
     if not os.path.isfile(datafile_path):
@@ -90,7 +91,6 @@ class UpdateHandler:
         for idx, fp in enumerate(datasets):
             status = self._process_file(fp, index=idx, total=total)
             if status != 0:
-                raise status
                 logger.error(status)
                 fail_list.append(fp)
         return fail_list
