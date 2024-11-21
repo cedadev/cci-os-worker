@@ -20,6 +20,7 @@ import asyncio
 
 from facet_scanner.core.facet_scanner import FacetScanner
 from ceda_elasticsearch_tools.elasticsearch import CEDAElasticsearchClient
+from fbi_directory_check.utils import check_timeout
 
 from .utils import load_config, UpdateHandler, set_verbose
 
@@ -109,23 +110,6 @@ def _get_command_line_args():
         'verbose': args.verbose-1,
         'file_count': args.file_count
     }
-
-def check_timeout():
-
-    async def listfile():
-        async with asyncio.timeout(10):
-            await os.path.isfile('/neodc/esacci/esacci_terms_and_conditions.txt')
-
-    try:
-        status = listfile()
-    except TimeoutError:
-        logger.error('ESACCI Directories inaccessible')
-        return True
-
-    if not status:
-        logger.error('ESACCI Directories inaccessible')
-        return True
-    return False
 
 def facet_main(args: dict = None):
     if args is None:
