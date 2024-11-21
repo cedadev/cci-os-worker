@@ -16,6 +16,8 @@ import hashlib
 import argparse
 import os
 
+import asyncio
+
 from facet_scanner.core.facet_scanner import FacetScanner
 from ceda_elasticsearch_tools.elasticsearch import CEDAElasticsearchClient
 
@@ -108,6 +110,23 @@ def _get_command_line_args():
         'file_count': args.file_count
     }
 
+def check_timeout():
+
+    async def listfile():
+        async with asyncio.timeout(10):
+            await os.path.isfile('/neodc/esacci/esacci_terms_and_conditions.txt')
+
+    try:
+        status = listfile()
+    except TimeoutError:
+        logger.error('ESACCI Directories inaccessible')
+        return True
+
+    if not status:
+        logger.error('ESACCI Directories inaccessible')
+        return True
+    return False
+
 def facet_main(args: dict = None):
     if args is None:
         args = _get_command_line_args()
@@ -118,6 +137,9 @@ def facet_main(args: dict = None):
         return
     if not os.path.isfile(args['datafile_path']):
         logger.error(f'Inaccessible Datafile - {args["datafile_path"]}')
+        return
+    
+    if check_timeout():
         return
 
     set_verbose(args['verbose'])
