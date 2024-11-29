@@ -14,9 +14,13 @@ __contact__ = 'daniel.westwood@stfc.ac.uk'
 import logging
 import hashlib
 import argparse
+import os
+
+import asyncio
 
 from facet_scanner.core.facet_scanner import FacetScanner
 from ceda_elasticsearch_tools.elasticsearch import CEDAElasticsearchClient
+from fbi_directory_check.utils import check_timeout
 
 from .utils import load_config, UpdateHandler, set_verbose
 
@@ -112,6 +116,15 @@ def facet_main(args: dict = None):
         args = _get_command_line_args()
     if isinstance(args['conf'], str):
         conf = load_config(args['conf'])
+
+    if conf is None:
+        return
+    if not os.path.isfile(args['datafile_path']):
+        logger.error(f'Inaccessible Datafile - {args["datafile_path"]}')
+        return
+    
+    if check_timeout():
+        return
 
     set_verbose(args['verbose'])
 
