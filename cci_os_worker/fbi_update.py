@@ -13,15 +13,20 @@ Please see this repository for further details
 """
 
 import magic as magic_number_reader
+import argparse
 import logging
+import hashlib
 
-from .utils import load_config, UpdateHandler, ch
+from ceda_elasticsearch_tools.elasticsearch import CEDAElasticsearchClient
+
+from typing import Tuple, Dict
+
+from .utils import load_config, UpdateHandler
 from .path_tools import PathTools
 from .errors import HandlerError, DocMetadataError
 
-from ceda_fbs.src.fbs.proc.file_handlers.handler_picker import HandlerPicker
-
 from cci_os_worker import logstream
+from cci_os_worker.netcdf_handler import NetCdfFile
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logstream)
@@ -72,39 +77,40 @@ class FBIUpdateHandler(UpdateHandler):
 
         esconf = {
             'headers': {
-                'x-api-key': self._conf['elasticsearch']['es_api_key']
+                'x-api-key': self._conf['elasticsearch']['x-api-key']
             },
                 'retry_on_timeout': True,
                 'timeout': 30
         }
 
         # Initialise the Elasticsearch connection
-        self.index_updater = CedaFbi(
-            index=self._index['name'],
-            **esconf
-        )
-        ldap_hosts = self._conf['ldap_configuration']['hosts']
-        self.ldap_interface = LDAPIdentifier(server=ldap_hosts, auto_bind=True)
+        self.es = CEDAElasticsearchClient(headers=esconf['headers'])
+
+        #ldap_hosts = self._conf['ldap_configuration']['hosts']
+        #self.ldap_interface = LDAPIdentifier(server=ldap_hosts, auto_bind=True)
 
         self.pt = PathTools()
 
-    def __process_file(self, path) -> None:
+    def _single_process_file(self, path, index,**kwargs) -> None:
         """
         Take the given file path and add it to the FBI index
         """
 
         logger.info(f'Depositing {path}')
 
-        handler = HandlerPicker.pick_best_handler(path)
+        handler = NetCdfFile
 
-        calculate_md5 = self._index['calculate_md5']
-        scan_level = self._index['scan_level']
+        calculate_md5 = False #self._index['calculate_md5']
+        scan_level = 2#self._index['scan_level']
 
         if handler is None:
             raise HandlerError(filename=path)
 
-        handler_instance = handler(path, scan_level, calculate_md5=calculate_md5)
-        doc = handler_instance.get_metadata()
+        handler_instance = handler(path, 3, calculate_md5=calculate_md5)
+        doc, phenomena, spatial = handler_instance.get_metadata()
+
+        doc[0]['info']['phenomena'] = phenomena
+        doc[0]['info']['spatial'] = spatial
 
         if doc is None:
             raise DocMetadataError(filename=path)
@@ -118,15 +124,24 @@ class FBIUpdateHandler(UpdateHandler):
         uid = doc[0]['info']['user']
         gid = doc[0]['info']['group']
 
-        doc[0]['info']['user'] = self.ldap_interface.get_user(uid)
-        doc[0]['info']['group'] = self.ldap_interface.get_group(gid)
 
-        indexing_list = [{
-            'id': self.pt.generate_id(path),
-            'document': self._create_body(doc)
-        }]
 
-        self.index_updater.add_files(indexing_list)
+        #doc[0]['info']['user'] = self.ldap_interface.get_user(uid)
+        #doc[0]['info']['group'] = self.ldap_interface.get_group(gid)
+
+        #indexing_list = [{
+        #    'id': self.pt.generate_id(path),
+        #    'document': self._create_body(doc)
+        #}]
+
+        self.es.update(
+            index="facet-index-staging",
+            id=hashlib.sha1(path.encode(errors="ignore")).hexdigest(),
+            body={'doc': {'info':doc[0]['info']}, 'doc_as_upsert': True}
+            # self._create_body(doc)
+        )
+
+        #self.index_updater.add_files(indexing_list)
 
     @staticmethod
     def _create_body(file_data: Tuple[Dict]) -> Dict:
@@ -198,8 +213,8 @@ def _get_command_line_args():
     parser.add_argument('datafile_path', type=str, help='Path to the "datasets.txt" file')
     parser.add_argument('conf', type=str, help='Path to Yaml config file for Elasticsearch')
 
-    parser.add_argument('-d','--dryrun', dest=dryrun, action='store_true', help='Perform in dryrun mode')
-    parser.add_argument('-t','--test', dest=test, action='store_true', help='Perform in test/staging mode')
+    parser.add_argument('-d','--dryrun', dest='dryrun', action='store_true', help='Perform in dryrun mode')
+    parser.add_argument('-t','--test', dest='test', action='store_true', help='Perform in test/staging mode')
 
     args = parser.parse_args()
 
