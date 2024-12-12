@@ -42,7 +42,6 @@ def get_file_header(filename):
 
     return first_line.replace("\n", "")
 
-
 def get_bytes_from_file(filename, num_bytes):
     """
     :param filename : The file to be read.

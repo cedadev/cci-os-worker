@@ -7,7 +7,6 @@ __contact__ = 'daniel.westwood@stfc.ac.uk'
 
 from .fbi_update import fbi_main
 from .facet_scan import facet_main
-from .tag_scan import tag_main
 
 import argparse
 import logging
@@ -41,15 +40,15 @@ def get_command_line_arguments():
 
     args = parser.parse_args()
 
-    return **{
-        'datafile_path': args.datafile_path,
-        'conf': args.conf,
-        'skip_facet': args.skip_facet,
-        'skip_tag': args.skip_tag,
-        'skip_fbi': args.skip_fbi,
-        'dryrun': args.dryrun,
-        'test': args.test
-    }
+    return (
+        args.datafile_path,
+        args.conf,
+        args.skip_facet,
+        args.skip_tag,
+        args.skip_fbi,
+        args.dryrun,
+        args.test
+    )
 
 def load_config(conf):
     """
@@ -76,9 +75,6 @@ def main():
     if not skip_facet:
         args = conf_complete['facet_scan_conf']
         facet_main(args=args)
-    if not skip_tag:
-        args = conf_complete['tag_scan_conf']
-        tag_main(args=args)
     if not skip_fbi:
         args = conf_complete['fbi_scan_conf']
         fbi_main(args=args)

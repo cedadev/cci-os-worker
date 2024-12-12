@@ -286,7 +286,7 @@ class GeoJSONGenerator(object):
             return items[0], items[0]
 
         if wrapped_coords:
-            if len(items) is 2:
+            if len(items) == 2:
                 first_bound_index = 0
                 second_bound_index = 1
             else:
