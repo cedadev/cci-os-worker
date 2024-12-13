@@ -24,6 +24,84 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logstream)
 logger.propagate = False
 
+def process_observations(results):
+    """
+    Convert the result list into a mapping object
+    :param results: list of observation json objects
+    :return: object map
+    """
+
+    processed_map = {}
+    for result in results:
+
+        # Skip results where the publication state is working
+        if result.get("publicationState") == "working":
+            continue
+
+        # Skip where the result_field value is None
+        if result["result_field"] is None:
+            continue
+
+        data_path = result["result_field"]["dataPath"].rstrip("/")
+
+        try:
+            processed_map[data_path] = {
+                "title": result["title"],
+                "url": f'https://catalogue.ceda.ac.uk/uuid/{result["uuid"]}',
+                "record_type": "Dataset",
+            }
+        except TypeError:
+            continue
+
+    return processed_map
+
+def generate_moles_mapping(api_url, mapping=None):
+    """
+    Use the MOLES v2 API to generate a mapping from dataset path to moles record
+
+    :param api_url: MOLES api URL
+    :param mapping: Used for recursive functionality
+    :return: Mapping dict
+    """
+
+    # Set the dictionary on first calling
+    if not mapping:
+        mapping = {}
+
+    # Get the api response
+    try:
+        response = requests.get(api_url).json()
+    except JSONDecodeError as e:
+        import sys
+
+        raise ConnectionError(
+            f"Could not connect to {api_url} to get moles mapping"
+        ) from e
+
+    # Turn response into mapping object
+    mapping.update(process_observations(response["results"]))
+
+    if not response["next"]:
+        return mapping
+    else:
+        return generate_moles_mapping(response["next"], mapping)
+
+def load_moles_mapping(mapping_file):
+    """
+    Load a json document and condition it to match same as from API
+    """
+
+    data = {}
+
+    with open(mapping_file) as reader:
+        json_doc = json.load(reader)
+
+    # Loop through and remove trailing slash from paths
+    for k, v in json_doc.items():
+        data[k.rstrip("/")] = v
+
+    return data
+
 class PathTools:
     def __init__(
         self,
