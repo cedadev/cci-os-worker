@@ -74,9 +74,9 @@ class FBIUpdateHandler(UpdateHandler):
         super().__init__(conf, dryrun=dryrun, test=test)
 
         if self._test:
-            self._index = self._conf['fbi_files_test_index']
+            self._index = self._conf['facet_files_index']
         else:
-            self._index = self._conf['fbi_files_index']
+            self._index = self._conf['facet_files_test_index']
 
         esconf = {
             'headers': {
