@@ -6,8 +6,8 @@ import logging
 import traceback
 
 from .generic_file import GenericFile
-import cci_os_worker.netcdf_handler.util as util
-import cci_os_worker.netcdf_handler.geojson as geojson
+import cci_os_worker.filehandlers.util as util
+import cci_os_worker.filehandlers.geojson as geojson
 
 logger = logging.getLogger(__name__)
 

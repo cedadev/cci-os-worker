@@ -37,7 +37,7 @@ class TestConsistency:
 
     def test_netcdf(self):
 
-        from cci_os_worker.netcdf_handler.generic_file import GenericFile
-        from cci_os_worker.netcdf_handler.geojson import GeoJSONGenerator
-        from cci_os_worker.netcdf_handler.netcdf_file import NetCdfFile
-        from cci_os_worker.netcdf_handler.util import Parameter
+        from cci_os_worker.filehandlers.generic_file import GenericFile
+        from cci_os_worker.filehandlers.geojson import GeoJSONGenerator
+        from cci_os_worker.filehandlers.netcdf_file import NetCdfFile
+        from cci_os_worker.filehandlers.util import Parameter
