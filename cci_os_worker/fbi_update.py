@@ -12,7 +12,6 @@ https://github.com/cedadev/rabbit-fbi-indexer
 Please see this repository for further details
 """
 
-import magic as magic_number_reader
 import argparse
 import logging
 import hashlib
@@ -20,13 +19,15 @@ import hashlib
 from ceda_elasticsearch_tools.elasticsearch import CEDAElasticsearchClient
 
 from typing import Tuple, Dict
+import os
 
 from .utils import load_config, UpdateHandler
 from .path_tools import PathTools
 from .errors import HandlerError, DocMetadataError
 
 from cci_os_worker import logstream
-from cci_os_worker.netcdf_handler import NetCdfFile
+from cci_os_worker.filehandlers import NetCdfFile, GenericFile
+from cci_os_worker.filehandlers.util import LDAPIdentifier
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logstream)
@@ -58,6 +59,9 @@ def get_bytes_from_file(filename, num_bytes):
 
     return bytes_read
 
+def get_id_from_path(path):
+    return hashlib.sha1(path.encode(errors="ignore")).hexdigest()
+
 class FBIUpdateHandler(UpdateHandler):
     """
     Class to handle the updates to the FBI from newly ingested datasets.
@@ -85,8 +89,8 @@ class FBIUpdateHandler(UpdateHandler):
         # Initialise the Elasticsearch connection
         self.es = CEDAElasticsearchClient(headers=esconf['headers'])
 
-        #ldap_hosts = self._conf['ldap_configuration']['hosts']
-        #self.ldap_interface = LDAPIdentifier(server=ldap_hosts, auto_bind=True)
+        ldap_hosts = self._conf['ldap_configuration']['hosts']
+        self.ldap_interface = LDAPIdentifier(server=ldap_hosts, auto_bind=True)
 
         self.pt = PathTools()
 
@@ -97,22 +101,31 @@ class FBIUpdateHandler(UpdateHandler):
 
         logger.info(f'Depositing {path}')
 
-        handler = NetCdfFile
+        extension = os.path.splitext(path.split('/')[-1])
+        extension = extension.lower()
 
-        calculate_md5 = False #self._index['calculate_md5']
-        scan_level = 2#self._index['scan_level']
+        if extension == '.nc':
+            handler = NetCdfFile
+        else:
+            handler = GenericFile
+
+        calculate_md5 = self._conf.get('calculate_md5',False)
 
         if handler is None:
             raise HandlerError(filename=path)
 
         handler_instance = handler(path, 3, calculate_md5=calculate_md5)
-        doc, phenomena, spatial = handler_instance.get_metadata()
 
-        doc[0]['info']['phenomena'] = phenomena
-        doc[0]['info']['spatial'] = spatial
+        # FutureDetail: Remove manifest from 'doc' if unneeded (no indexing required.)
+        doc, phenomena, spatial = handler_instance.get_metadata()
 
         if doc is None:
             raise DocMetadataError(filename=path)
+
+        if phenomena:
+            doc[0]['info']['phenomena'] = phenomena
+        if spatial:
+            doc[0]['info']['spatial'] = spatial
 
         spot = self.pt.spots.get_spot(path)
 
@@ -123,87 +136,25 @@ class FBIUpdateHandler(UpdateHandler):
         uid = doc[0]['info']['user']
         gid = doc[0]['info']['group']
 
-
-
-        #doc[0]['info']['user'] = self.ldap_interface.get_user(uid)
-        #doc[0]['info']['group'] = self.ldap_interface.get_group(gid)
-
-        #indexing_list = [{
-        #    'id': self.pt.generate_id(path),
-        #    'document': self._create_body(doc)
-        #}]
+        doc[0]['info']['user'] = self.ldap_interface.get_user(uid)
+        doc[0]['info']['group'] = self.ldap_interface.get_group(gid)
 
         self.es.update(
-            index="facet-index-staging",
-            id=hashlib.sha1(path.encode(errors="ignore")).hexdigest(),
+            index=str(self._index),
+            id=get_id_from_path(path),
             body={'doc': {'info':doc[0]['info']}, 'doc_as_upsert': True}
-            # self._create_body(doc)
         )
-
-        #self.index_updater.add_files(indexing_list)
-
-    @staticmethod
-    def _create_body(file_data: Tuple[Dict]) -> Dict:
-        """
-        Create the fbi-index document body from the handler
-        response
-
-        :param file_data: extracted metadata from the FBI file handler
-        :return: FBI document body
-        """
-
-        data_length = len(file_data)
-
-        doc = file_data[0]
-        if data_length > 1:
-            if file_data[1] is not None:
-                doc['info']['phenomena'] = file_data[1]
-
-            if data_length == 3:
-                if file_data[2] is not None:
-                    doc['info']['spatial'] = file_data[2]
-
-        return doc
 
     def _process_deletions(self, path: str) -> None:
         """
-        Take the given file path and delete it from the FBI index
+        Take the given file path and delete it from the Opensearch index
 
         :param path: File path
         """
 
-        deletion_list = [
-            {'id': self.pt.generate_id(path)}
-        ]
-        try:
-            self.index_updater.delete_files(deletion_list)
-        except BulkIndexError as e:
-            pass
-        """
-        Creates the FBI document from the rabbit message.
-        Does not touch the filesystem
-        :param message: IngestMessage object
-        :return: document to index to elasticsearch
-        """
-
-        filename = os.path.basename(message.filepath)
-        dirname = os.path.dirname(message.filepath)
-        file_type = os.path.splitext(filename)[1]
-
-        if len(file_type) == 0:
-            file_type = "File without extension."
-
-        return [{
-            'info': {
-                'name_auto': filename,
-                'type': file_type,
-                'directory': dirname,
-                'size': message.filesize,
-                'name': filename,
-                'location': 'on_disk'
-            }
-        }]
-
+        id = get_id_from_path(path)
+        pass
+        
 def _get_command_line_args():
     """
     Get the command line arguments for the facet scan
