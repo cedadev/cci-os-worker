@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cci-os-worker"
-version = "0.2.0"
+version = "0.3.0"
 description = "Worker repo to execute the steps for CCI Opensearch Ingestion, namely facet and tag scanning and updates to the CEDA FBI"
 authors = ["Daniel Westwood <daniel.westwood@stfc.ac.uk>"]
 license = "\"{file = 'LICENSE'}\""
@@ -11,7 +11,7 @@ python = "^3.10"
 pyyaml = "^6.0.2"
 elasticsearch = "^7"
 facet-scanner = { git = 'https://github.com/cedadev/facet-scanner.git', tag = "v0.1.5" }
-fbi-directory-check = { git = 'https://github.com/cedadev/fbi-directory-check.git', tag = "v0.2.2" }
+fbi-directory-check = { git = 'https://github.com/cedadev/fbi-directory-check.git', rev = "1b4b241" }
 aiofiles = "^24.1.0"
 python-magic = "0.4.22"
 python-dateutil = "^2.9.0.post0"
