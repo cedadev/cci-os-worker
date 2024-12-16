@@ -43,7 +43,7 @@ class GenericFile(object):
              or not os.path.isfile(self.file_path)
              # or os.path.islink(self.file_path)
            ):
-            return None
+            return None, None, None
 
         file_info = {}
         info = {}
@@ -79,7 +79,7 @@ class GenericFile(object):
             info["format"] = self.FILE_FORMAT
 
         file_info["info"] = info
-        return (file_info, )
+        return file_info, None, None
 
     def get_metadata_level2(self):
 
@@ -88,19 +88,19 @@ class GenericFile(object):
         :returns: A dict containing information compatible with current es ops.
         """
 
-        file_info = self.get_metadata_level1()
+        file_info, a, b = self.get_metadata_level1()
 
         self.handler_id = "Generic level 2."
 
         if file_info is None:
-            return None
+            return None, None, None
 
-        return file_info
+        return file_info, None, None
 
     def get_metadata_level3(self):
-        file_info = self.get_metadata_level2()
+        file_info, a, b = self.get_metadata_level2()
         self.handler_id = "Generic level 3."
-        return file_info
+        return file_info, None, None
 
     def get_metadata(self):
 

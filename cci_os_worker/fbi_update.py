@@ -186,5 +186,9 @@ def fbi_main(args: dict = None):
     fb = FBIUpdateHandler(conf, dryrun=args['dryrun'], test=args['test'])
     fail_list = fb.process_deposits(args['datafile_path'])
 
+    logger.info('Failed items:')
+    for f in fail_list:
+        logger.info(f)
+
 if __name__ == '__main__':
     fbi_main()

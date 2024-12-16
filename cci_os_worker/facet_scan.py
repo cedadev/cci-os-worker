@@ -131,6 +131,10 @@ def facet_main(args: dict = None):
     fs = FacetUpdateHandler(conf, dryrun=args['dryrun'], test=args['test'])
     fail_list = fs.process_deposits(args['datafile_path'], args['prefix'], file_limit=args['file_count'])
 
+
+    logger.info('Failed items:')
+    for f in fail_list:
+        logger.info(f)
     # Register the fail_list with logs so it can be picked up in reruns.
 
 if __name__ == '__main__':
