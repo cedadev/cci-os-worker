@@ -109,6 +109,9 @@ class PathTools:
         mapping_file: Optional[str] = None,
     ):
 
+        if os.path.isfile('moles_mapping.json'):
+            mapping_file = 'moles_mapping.json'
+
         self.spots = SpotMapping()
 
         self.moles_mapping_url = moles_mapping_url
@@ -117,6 +120,10 @@ class PathTools:
             self.moles_mapping = load_moles_mapping(mapping_file)
         else:
             self.moles_mapping = generate_moles_mapping(self.moles_mapping_url)
+
+        #DEBUG
+        #with open('moles_mapping.json','w') as f:
+            #f.write(json.dumps(self.moles_mapping))
 
         # Setup the matching tree
         self.tree = DatasetNode()
