@@ -72,6 +72,8 @@ class FBIUpdateHandler(UpdateHandler):
 
         logger.info('Loading FBI Updater')
 
+        self._spot_file = conf.get('spot_file',None)
+
         super().__init__(conf, dryrun=dryrun, test=test)
 
         if self._test:
@@ -93,7 +95,7 @@ class FBIUpdateHandler(UpdateHandler):
         ldap_hosts = self._conf['ldap_configuration']['hosts']
         self.ldap_interface = LDAPIdentifier(server=ldap_hosts, auto_bind=True)
 
-        self.pt = PathTools()
+        self.pt = PathTools(spot_file=self._spot_file)
 
     def _single_process_file(self, path, index,**kwargs) -> None:
         """

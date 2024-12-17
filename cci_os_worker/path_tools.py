@@ -107,12 +107,13 @@ class PathTools:
         self,
         moles_mapping_url: str = "http://api.catalogue.ceda.ac.uk/api/v2/observations.json/",
         mapping_file: Optional[str] = None,
+        spot_file: str = None,
     ):
 
         if os.path.isfile('moles_mapping.json'):
             mapping_file = 'moles_mapping.json'
 
-        self.spots = SpotMapping()
+        self.spots = SpotMapping(spot_file=spot_file)
 
         self.moles_mapping_url = moles_mapping_url
 
