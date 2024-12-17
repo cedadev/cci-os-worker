@@ -182,7 +182,6 @@ def _get_command_line_args():
         'verbose': args.verbose,
         'file_count': args.file_count,
         'output': args.output
-
     }
 
 def fbi_main(args: dict = None):
@@ -206,8 +205,8 @@ def fbi_main(args: dict = None):
 
     set_verbose(args['verbose'])
 
-    fb = FBIUpdateHandler(conf, dryrun=args['dryrun'], test=args['test'], file_limit=file_limit)
-    fail_list = fb.process_deposits(args['datafile_path'])
+    fb = FBIUpdateHandler(conf, dryrun=args['dryrun'], test=args['test'])
+    fail_list = fb.process_deposits(args['datafile_path'], file_limit=file_limit)
 
     logger.info('Failed items:')
     for f in fail_list:
