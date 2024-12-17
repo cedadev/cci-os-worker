@@ -21,7 +21,7 @@ from ceda_elasticsearch_tools.elasticsearch import CEDAElasticsearchClient
 from typing import Tuple, Dict
 import os
 
-from .utils import load_config, UpdateHandler
+from .utils import load_config, UpdateHandler, set_verbose
 from .path_tools import PathTools
 from .errors import HandlerError, DocMetadataError
 
@@ -167,6 +167,9 @@ def _get_command_line_args():
 
     parser.add_argument('-d','--dryrun', dest='dryrun', action='store_true', help='Perform in dryrun mode')
     parser.add_argument('-t','--test', dest='test', action='store_true', help='Perform in test/staging mode')
+    parser.add_argument('-v','--verbose', action='count', default=2, help='Set level of verbosity for logs')
+    parser.add_argument('-f','--file-count', dest='file_count', type=int, help='Add limit to number of files to process.')
+    parser.add_argument('-o','--output', dest='output', default=None, help='Send fail list to an output file')
 
     args = parser.parse_args()
 
@@ -174,7 +177,11 @@ def _get_command_line_args():
         'datafile_path': args.datafile_path,
         'conf': args.conf,
         'dryrun': args.dryrun,
-        'test': args.test
+        'test': args.test,
+        'verbose': args.verbose,
+        'file_count': args.file_count,
+        'output': args.output
+
     }
 
 def fbi_main(args: dict = None):
@@ -183,12 +190,18 @@ def fbi_main(args: dict = None):
     if isinstance(args['conf'], str):
         conf = load_config(args['conf'])
 
-    fb = FBIUpdateHandler(conf, dryrun=args['dryrun'], test=args['test'])
+    set_verbose(args['verbose'])
+
+    fb = FBIUpdateHandler(conf, dryrun=args['dryrun'], test=args['test'], file_limit=conf['file_limit'])
     fail_list = fb.process_deposits(args['datafile_path'])
 
     logger.info('Failed items:')
     for f in fail_list:
         logger.info(f)
+
+    if args['output'] is not None and fail_list != []:
+        with open(args['output'],'w') as f:
+            f.write('\n'.join(fail_list))
 
 if __name__ == '__main__':
     fbi_main()

@@ -98,6 +98,7 @@ def _get_command_line_args():
     parser.add_argument('-p','--prefix', dest='prefix', default='', help='Prefix to apply to all filenames')
     parser.add_argument('-v','--verbose', action='count', default=2, help='Set level of verbosity for logs')
     parser.add_argument('-f','--file-count', dest='file_count', type=int, help='Add limit to number of files to process.')
+    parser.add_argument('-o','--output', dest='output', default=None, help='Send fail list to an output file')
 
     args = parser.parse_args()
 
@@ -108,7 +109,8 @@ def _get_command_line_args():
         'test': args.test,
         'prefix': args.prefix,
         'verbose': args.verbose-1,
-        'file_count': args.file_count
+        'file_count': args.file_count,
+        'output': args.output
     }
 
 def facet_main(args: dict = None):
@@ -118,24 +120,28 @@ def facet_main(args: dict = None):
         conf = load_config(args['conf'])
 
     if conf is None:
+        logger.error('Config file could not be loaded')
         return
     if not os.path.isfile(args['datafile_path']):
         logger.error(f'Inaccessible Datafile - {args["datafile_path"]}')
         return
     
     if check_timeout():
+        logger.error('Check-timeout failed')
         return
 
     set_verbose(args['verbose'])
 
     fs = FacetUpdateHandler(conf, dryrun=args['dryrun'], test=args['test'])
-    fail_list = fs.process_deposits(args['datafile_path'], args['prefix'], file_limit=args['file_count'])
-
+    fail_list = fs.process_deposits(args['datafile_path'], args['prefix'], file_limit=conf['file_count'])
 
     logger.info('Failed items:')
     for f in fail_list:
         logger.info(f)
-    # Register the fail_list with logs so it can be picked up in reruns.
+
+    if args['output'] is not None and fail_list != []:
+        with open(args['output'],'w') as f:
+            f.write('\n'.join(fail_list))
 
 if __name__ == '__main__':
     facet_main()
