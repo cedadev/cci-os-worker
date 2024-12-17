@@ -17,6 +17,7 @@ import logging
 import hashlib
 
 from ceda_elasticsearch_tools.elasticsearch import CEDAElasticsearchClient
+from fbi_directory_check.utils import check_timeout
 
 from typing import Tuple, Dict
 import os
@@ -190,9 +191,22 @@ def fbi_main(args: dict = None):
     if isinstance(args['conf'], str):
         conf = load_config(args['conf'])
 
+    if conf is None:
+        logger.error('Config file could not be loaded')
+        return
+    if not os.path.isfile(args['datafile_path']):
+        logger.error(f'Inaccessible Datafile - {args["datafile_path"]}')
+        return
+    
+    if check_timeout():
+        logger.error('Check-timeout failed')
+        return
+
+    file_limit = conf.get('file_limit', None) or args.get('file_limit', None)
+
     set_verbose(args['verbose'])
 
-    fb = FBIUpdateHandler(conf, dryrun=args['dryrun'], test=args['test'], file_limit=conf['file_limit'])
+    fb = FBIUpdateHandler(conf, dryrun=args['dryrun'], test=args['test'], file_limit=file_limit)
     fail_list = fb.process_deposits(args['datafile_path'])
 
     logger.info('Failed items:')
