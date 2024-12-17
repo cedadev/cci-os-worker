@@ -12,6 +12,7 @@ pyyaml = "^6.0.2"
 elasticsearch = "^7"
 facet-scanner = { git = 'https://github.com/cedadev/facet-scanner.git', tag = "v0.1.7" }
 fbi-directory-check = { git = 'https://github.com/cedadev/fbi-directory-check.git', tag="v0.2.3" }
+
 aiofiles = "^24.1.0"
 python-magic = "0.4.22"
 python-dateutil = "^2.9.0.post0"

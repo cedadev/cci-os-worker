@@ -74,9 +74,9 @@ class FBIUpdateHandler(UpdateHandler):
         super().__init__(conf, dryrun=dryrun, test=test)
 
         if self._test:
-            self._index = self._conf['facet_files_index']
+            self._index = self._conf['facet_files_index']['name']
         else:
-            self._index = self._conf['facet_files_test_index']
+            self._index = self._conf['facet_files_test_index']['name']
 
         esconf = {
             'headers': {
@@ -101,7 +101,7 @@ class FBIUpdateHandler(UpdateHandler):
 
         logger.info(f'Depositing {path}')
 
-        extension = os.path.splitext(path.split('/')[-1])
+        extension = os.path.splitext(path.split('/')[-1])[-1]
         extension = extension.lower()
 
         if extension == '.nc':
@@ -121,28 +121,30 @@ class FBIUpdateHandler(UpdateHandler):
 
         if doc is None:
             raise DocMetadataError(filename=path)
+        if len(doc) > 1:
+            doc = doc[0]
 
         if phenomena:
-            doc[0]['info']['phenomena'] = phenomena
+            doc['info']['phenomena'] = phenomena
         if spatial:
-            doc[0]['info']['spatial'] = spatial
+            doc['info']['spatial'] = spatial
 
         spot = self.pt.spots.get_spot(path)
 
         if spot is not None:
-            doc[0]['info']['spot_name'] = spot
+            doc['info']['spot_name'] = spot
 
         # Replace the UID and GID with name and group
-        uid = doc[0]['info']['user']
-        gid = doc[0]['info']['group']
+        uid = doc['info']['user']
+        gid = doc['info']['group']
 
-        doc[0]['info']['user'] = self.ldap_interface.get_user(uid)
-        doc[0]['info']['group'] = self.ldap_interface.get_group(gid)
+        doc['info']['user'] = self.ldap_interface.get_user(uid)
+        doc['info']['group'] = self.ldap_interface.get_group(gid)
 
         self.es.update(
             index=str(self._index),
             id=get_id_from_path(path),
-            body={'doc': {'info':doc[0]['info']}, 'doc_as_upsert': True}
+            body={'doc': {'info':doc['info']}, 'doc_as_upsert': True}
         )
 
     def _process_deletions(self, path: str) -> None:
@@ -183,6 +185,10 @@ def fbi_main(args: dict = None):
 
     fb = FBIUpdateHandler(conf, dryrun=args['dryrun'], test=args['test'])
     fail_list = fb.process_deposits(args['datafile_path'])
+
+    logger.info('Failed items:')
+    for f in fail_list:
+        logger.info(f)
 
 if __name__ == '__main__':
     fbi_main()
