@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cci-os-worker"
-version = "0.3.1"
+version = "0.3.2"
 description = "Worker repo to execute the steps for CCI Opensearch Ingestion, namely facet and tag scanning and updates to the CEDA FBI"
 authors = ["Daniel Westwood <daniel.westwood@stfc.ac.uk>"]
 license = "\"{file = 'LICENSE'}\""
