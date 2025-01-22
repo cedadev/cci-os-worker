@@ -72,6 +72,8 @@ class FBIUpdateHandler(UpdateHandler):
 
         logger.info('Loading FBI Updater')
 
+        self._spot_file = conf.get('spot_file',None)
+
         super().__init__(conf, dryrun=dryrun, test=test)
 
         if self._test:
@@ -93,7 +95,7 @@ class FBIUpdateHandler(UpdateHandler):
         ldap_hosts = self._conf['ldap_configuration']['hosts']
         self.ldap_interface = LDAPIdentifier(server=ldap_hosts, auto_bind=True)
 
-        self.pt = PathTools()
+        self.pt = PathTools(spot_file=self._spot_file)
 
     def _single_process_file(self, path, index,**kwargs) -> None:
         """
@@ -182,7 +184,6 @@ def _get_command_line_args():
         'verbose': args.verbose,
         'file_count': args.file_count,
         'output': args.output
-
     }
 
 def fbi_main(args: dict = None):
@@ -206,8 +207,8 @@ def fbi_main(args: dict = None):
 
     set_verbose(args['verbose'])
 
-    fb = FBIUpdateHandler(conf, dryrun=args['dryrun'], test=args['test'], file_limit=file_limit)
-    fail_list = fb.process_deposits(args['datafile_path'])
+    fb = FBIUpdateHandler(conf, dryrun=args['dryrun'], test=args['test'])
+    fail_list = fb.process_deposits(args['datafile_path'], file_limit=file_limit)
 
     logger.info('Failed items:')
     for f in fail_list:
