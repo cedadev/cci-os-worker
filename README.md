@@ -1,6 +1,8 @@
 # CCI Opensearch Worker repository
 
-__Latest version: v0.3.1 (December 17th 2024)__
+__Latest version: v0.4.0 (22nd January 2025)__
+
+**see release notes for change history**
 
 This package serves as a wrapper for the CCI Opensearch Workflow, which involves several independent packages with multiple dependencies. Primarily the CCI Tagger (cci-tag-scanner) and Facet scanner (facet-scanner) are combined, with elements from the CEDA FBS (ceda-fbs-cci) package to create the components for Opensearch records in Elasticsearch.
 
@@ -16,15 +18,26 @@ Set up a python virtual environment
 ```
  $ python -m venv .venv
  $ source .venv/bin/activate
- # Install this module (no need to install poetry for this part)
- 
  $ pip install .
 ```
 
+NOTE: As of 22nd Jan 2025 the `cci-os-worker` repository has been upgraded for use with Poetry version 2. This requires the use of an additional `requirements_fix.txt` patch while a solution for poetry dependencies in github is worked on. The above installation MUST be supplemented with:
+
+```
+ $ pip install -r requirements_fix.txt
+```
+This is a temporary fix and will be removed when poetry is patched.
+
+### 1.1. Use in other packages
+
+**Poetry 1.8.5 and older**
 For use in another package as a dependency, use the following in your pyproject `[tool.poetry.dependencies]`:
 ```
 cci-os-worker = { git = "https://github.com/cedadev/cci-os-worker.git", tag="v0.3.1"}
 ```
+
+**Poetry 2.0.1 and later**
+The exact package address and tag should be added to a `requirements_fix.txt` file, which should then be installed as an additional step when using this package. This is in reference to the note on Poetry version 2 above.
 
 ## 2. Usage
 
