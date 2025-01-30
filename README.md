@@ -6,6 +6,8 @@ __Latest version: v0.4.0 (22nd January 2025)__
 
 This package serves as a wrapper for the CCI Opensearch Workflow, which involves several independent packages with multiple dependencies. Primarily the CCI Tagger (cci-tag-scanner) and Facet scanner (facet-scanner) are combined, with elements from the CEDA FBS (ceda-fbs-cci) package to create the components for Opensearch records in Elasticsearch.
 
+![CCI Opensearch Workflow](https://github.com/cedadev/cci-os-worker/blob/main/_images/CCI_Workflow.png)
+
 ## 1. Installation
 
 This package can be cloned directly or used as a dependency in a pyproject file.
