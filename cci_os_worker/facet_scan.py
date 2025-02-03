@@ -85,6 +85,11 @@ class FacetUpdateHandler(UpdateHandler):
         else:
             logger.info(f'DRYRUN: Skipped updating for {filepath.split("/")[-1]}')
 
+            self._local_cache(
+                filename=f'cache/{filepath.split("/")[-1]}-cache.json',
+                contents=project,
+            )
+
 def _get_command_line_args():
     """
     Get the command line arguments for the facet scan

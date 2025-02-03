@@ -144,11 +144,20 @@ class FBIUpdateHandler(UpdateHandler):
         doc['info']['user'] = self.ldap_interface.get_user(uid)
         doc['info']['group'] = self.ldap_interface.get_group(gid)
 
-        self.es.update(
-            index=str(self._index),
-            id=get_id_from_path(path),
-            body={'doc': {'info':doc['info']}, 'doc_as_upsert': True}
-        )
+        # Send facets to elasticsearch
+        if not self._dryrun:
+            self.es.update(
+                index=str(self._index),
+                id=get_id_from_path(path),
+                body={'doc': {'info':doc['info']}, 'doc_as_upsert': True}
+            )
+        else:
+            logger.info(f'DRYRUN: Skipped updating for {path.split("/")[-1]}')
+
+            self._local_cache(
+                filename=f'cache/{path.split("/")[-1]}-cache.json',
+                contents=doc,
+            )
 
     def _process_deletions(self, path: str) -> None:
         """

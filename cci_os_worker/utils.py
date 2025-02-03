@@ -7,6 +7,7 @@ __contact__ = 'daniel.westwood@stfc.ac.uk'
 
 import os
 import yaml
+import json
 import logging
 
 from cci_os_worker import logstream
@@ -66,6 +67,30 @@ class UpdateHandler:
         self._test = test
         self._conf = conf
 
+    def _local_cache(self, filename, contents):
+        """
+        Cache contents of Opensearch record locally
+        for test purposes."""
+
+        if os.path.isfile(filename):
+            try:
+                with open(filename) as f:
+                    refs = json.load(f)
+                contents = contents | refs
+            except:
+                pass
+
+        with open(filename,'w') as f:
+            f.write(json.dumps(contents))
+
+    def _ensure_cache(self):
+        """
+        Ensure the cache directory exists
+        """
+
+        if not os.path.isdir('cache/'):
+            os.makedirs('cache/')
+
     def process_deposits(self, datafile_path: str, prefix: str = '', file_limit = None):
         """
         Process deposits from the dataset file given to this function
@@ -77,6 +102,9 @@ class UpdateHandler:
             raise ValueError(
                 f'Filepath {datafile_path} is not accessible'
             )
+        
+        if self._dryrun:
+            self._ensure_cache()
 
         with open(datafile_path) as f:
             datasets = [prefix + r.strip() for r in f.readlines()]
