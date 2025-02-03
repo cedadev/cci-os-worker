@@ -48,21 +48,23 @@ The exact package address and tag should be added to a `requirements_fix.txt` fi
 Determining the set of files to operate over can be done in two ways using built-in scripts here, or indeed by any other means. If the intention is to submit to a rabbit queue however, this script is required with the additional `-R` parameter to submit to a queue, and the configuration for the queue given by a yaml file provided as `--conf`.
 
 ```
-fbi_rescan_dir path/to/json/directory/ -r -l 1 -o path/to/dataset/filelist.txt
+fbi_rescan_dir path/to/json/directory/ --extension nc -l 1 -o path/to/dataset/filelist.txt
 ```
 
 In the above command:
  - `r` represents a recursive look through identified directories.
  - `l` means the scan level. Scan level 1 will involve finding all the JSON files and expanding each `datasets` path into a list.
  - `o` is the output file to send the list of datasets.
+ - `--extension` applies to the files identified and added to the output file. `nc` is the default value so is redundant here.
+ - `--file-regex` alternative to supplying just the extension, if a valid regex pattern can be matched to identify specific files it can be submitted here.
 
 This command can also be run for a known directory to expand into a list of datasets:
 
 ```
-fbi_rescan_dir my/datasets/path/**/*.nc -r -l 2 -o path/to/dataset/filelist.txt
+fbi_rescan_dir my/datasets/path/ -l 2 -o path/to/dataset/filelist.txt
 ```
 
-In this case we specify `l` as 2 since there are no JSON files involved.
+In this case we specify `l` as 2 since there are no JSON files involved. The extension/file_regex options can also be added here, but as the `nc` option is a default value we have omitted it here.
 
 ## 2.2 Run the facet scan workflow
 
