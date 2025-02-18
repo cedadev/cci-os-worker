@@ -1,5 +1,5 @@
-https://github.com/cedadev/facet-scanner/archive/v0.2.1.tar.gz
+https://github.com/cedadev/facet-scanner/archive/v0.2.2.tar.gz
 https://github.com/cedadev/fbi-directory-check/archive/v0.3.1.tar.gz
 https://github.com/cedadev/ceda-elasticsearch-tools/archive/v2.5.0a.tar.gz
-https://github.com/cedadev/cci-tag-scanner/archive/v2.2.2.tar.gz
+https://github.com/cedadev/cci-tag-scanner/archive/v2.2.3.tar.gz
 https://github.com/cedadev/ceda-directory-tree/archive/v1.1.6.tar.gz
