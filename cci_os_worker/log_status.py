@@ -8,6 +8,7 @@ __contact__ = 'daniel.westwood@stfc.ac.uk'
 import sys
 import logging
 import hashlib
+import argparse
 from ceda_elasticsearch_tools.elasticsearch import CEDAElasticsearchClient
 
 from cci_os_worker import logstream
@@ -17,13 +18,34 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logstream)
 logger.propagate = False
 
+def get_args():
+
+    parser = argparse.ArgumentParser(description='Entrypoint for the CCI OS Worker on the CMD Line')
+    parser.add_argument('conf', type=str, help='Path to Yaml config file for Elasticsearch')
+
+    parser.add_argument('-d','--dryrun', dest='dryrun', action='store_true', help='Perform in dryrun mode')
+    parser.add_argument('-t','--test', dest='test', action='store_true', help='Perform in test/staging mode')
+    parser.add_argument('--fileset', dest='fileset',help='Fileset to add to fails index, concat multiple files with ","')
+    parser.add_argument('-o','--output', dest='output', default=None, help='Send fail list to an output file')
+
+    args = parser.parse_args()
+
+    return {
+        'conf': args.conf,
+        'dryrun': args.dryrun,
+        'test': args.test,
+        'fileset': args.fileset,
+        'output': args.output
+    }
+
 def dump_errors():
     """
     Dump all the failed files in the ES index into a local file
     """
 
-    conf = load_config(sys.argv[1])
-    outfile = sys.argv[2]
+    args = get_args()
+    conf = load_config(args['conf'])
+    outfile = args['output']
 
     esconf = {
         'headers': {
@@ -32,7 +54,11 @@ def dump_errors():
             'retry_on_timeout': True,
             'timeout': 30
     }
-    index = 'os-tagger-failures'
+
+    if args['test']:
+        index = conf['facet_files_test_index']
+    else:
+        index = conf['facet_files_index']
     
     es = CEDAElasticsearchClient(headers=esconf['headers'])
 
@@ -60,15 +86,13 @@ def add_errors():
     Add all the failed files to an ES index for later retrieval.
     """
     
-    if len(sys.argv) <= 1:
-        logger.error('No config file given')
-        return
+    args = get_args()
 
-    conf = load_config(sys.argv[1])
-    filenames = sys.argv[2:]
-    if len(filenames) == 0:
-        logger.error('Nothing to do, no files given')
-        return
+    conf = load_config(args['conf'])
+
+    filenames = args['fileset'].split(',')
+    if len(filenames) == 1:
+        filenames = [filenames]
     
     esconf = {
         'headers': {
@@ -77,7 +101,10 @@ def add_errors():
             'retry_on_timeout': True,
             'timeout': 30
     }
-    index = 'os-tagger-failures'
+    if args['test']:
+        index = conf['facet_files_test_index']
+    else:
+        index = conf['facet_files_index']
     
     es = CEDAElasticsearchClient(headers=esconf['headers'])
     
