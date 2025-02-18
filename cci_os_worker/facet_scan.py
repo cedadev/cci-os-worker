@@ -71,7 +71,10 @@ class FacetUpdateHandler(UpdateHandler):
             }
         }
 
-        index = self._conf['facet_files_index']['name']
+        if self._test:
+            index = self._conf['facet_files_test_index']['name']
+        else:
+            index = self._conf['facet_files_index']['name']
 
         id = hashlib.sha1(filepath.encode(errors="ignore")).hexdigest()
 
