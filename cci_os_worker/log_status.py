@@ -56,9 +56,9 @@ def dump_errors():
     }
 
     if args['test']:
-        index = conf['facet_files_test_index']['name']
+        index = conf['failure_index_test']['name']
     else:
-        index = conf['facet_files_index']['name']
+        index = conf['failure_index']['name']
     
     es = CEDAElasticsearchClient(headers=esconf['headers'])
 
@@ -102,9 +102,9 @@ def add_errors():
             'timeout': 30
     }
     if args['test']:
-        index = conf['facet_files_test_index']['name']
+        index = conf['failure_test_index']['name']
     else:
-        index = conf['facet_files_index']['name']
+        index = conf['failure_index']['name']
     
     es = CEDAElasticsearchClient(headers=esconf['headers'])
     
