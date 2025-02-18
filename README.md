@@ -1,6 +1,7 @@
 # CCI Opensearch Worker repository
 
 ![Static Badge](https://img.shields.io/badge/cci%20tagger%20workflow-8AD6F6)
+![GitHub Release](https://img.shields.io/github/v/release/cedadev/cci-os-worker)
 
 __Latest version: v0.4.2 (18th February 2025)__
 
