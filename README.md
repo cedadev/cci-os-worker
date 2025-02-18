@@ -3,9 +3,11 @@
 ![Static Badge](https://img.shields.io/badge/cci%20tagger%20workflow-8AD6F6)
 ![GitHub Release](https://img.shields.io/github/v/release/cedadev/cci-os-worker)
 
-**see release notes for change history**
+**See release notes for change history**
 
 This package serves as a wrapper for the CCI Opensearch Workflow, which involves several independent packages with multiple dependencies. Primarily the CCI Tagger (cci-tag-scanner) and Facet scanner (facet-scanner) are combined, with elements from the CEDA FBS (ceda-fbs-cci) package to create the components for Opensearch records in Elasticsearch.
+
+**NOTE:** When publishing a new tagged release of this package, please make sure to rebuild the corresponding Docker image, in the CEDA gitlab repository `cci_opensearch_base`. This repository has a single build-image step that should be rerun (following the steps found there) to ensure any changes to this package are picked up by the OS worker deployment.
 
 ![CCI Opensearch Workflow](https://github.com/cedadev/cci-os-worker/blob/main/images/CCI_Workflow.png)
 
