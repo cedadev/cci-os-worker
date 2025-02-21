@@ -1,6 +1,6 @@
 [project]
 name = "cci-os-worker"
-version = "0.4.3"
+version = "0.4.4"
 description = "Worker repo to execute the steps for CCI Opensearch Ingestion, namely facet and tag scanning and updates to the CEDA FBI"
 authors = [
     { name = "Daniel Westwood", email = "daniel.westwood@stfc.ac.uk"}
