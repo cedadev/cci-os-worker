@@ -22,6 +22,9 @@ from facet_scanner.core.facet_scanner import FacetScanner
 from ceda_elasticsearch_tools.elasticsearch import CEDAElasticsearchClient
 from fbi_directory_check.utils import check_timeout
 
+from cci_os_worker.filehandlers.util import LDAPIdentifier
+from .path_tools import PathTools
+
 from .utils import load_config, UpdateHandler, set_verbose
 from .errors import HandlerError, DocMetadataError
 from cci_os_worker.filehandlers import NetCdfFile, GenericFile
@@ -48,6 +51,12 @@ class FacetUpdateHandler(UpdateHandler):
         api_key = conf['elasticsearch']['x-api-key']
 
         self.es = CEDAElasticsearchClient(headers={'x-api-key': api_key})
+
+        ldap_hosts = self._conf['ldap_configuration']['hosts']
+        self.ldap_interface = LDAPIdentifier(server=ldap_hosts, auto_bind=True)
+
+        self._spot_file = conf.get('spot_file',None)
+        self.pt = PathTools(spot_file=self._spot_file)
 
     def _get_project_info(self, path):
         """
@@ -94,7 +103,7 @@ class FacetUpdateHandler(UpdateHandler):
         doc['info']['user'] = self.ldap_interface.get_user(uid)
         doc['info']['group'] = self.ldap_interface.get_group(gid)
 
-        return doc
+        return doc['info']
 
     def _single_process_file(self, filepath: str, index: int = None, total: int = None):
         """
@@ -115,10 +124,10 @@ class FacetUpdateHandler(UpdateHandler):
 
         # Build the project dictionary using the handlers project name attr
         project = {
+            'info': self._get_project_info(filepath),
             'projects': {
                 handler.project_name: facets
-            },
-            'info': self._get_project_info(filepath)
+            }
         }
 
         if self._test:
@@ -204,4 +213,4 @@ def main(args: dict = None):
             f.write('\n'.join(fail_list))
 
 if __name__ == '__main__':
-    facet_main()
+    main()
