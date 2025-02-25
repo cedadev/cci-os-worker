@@ -97,12 +97,16 @@ class FBIUpdateHandler(UpdateHandler):
 
         self.pt = PathTools(spot_file=self._spot_file)
 
-    def _single_process_file(self, path, index,**kwargs) -> None:
+    def _single_process_file(self, path, index: int = 0, total: int = 0, **kwargs) -> None:
         """
         Take the given file path and add it to the FBI index
         """
 
-        logger.info(f'Depositing {path}')
+        logger.info('--------------------------------')
+        if index is None:
+            logger.info(f'Processing {path.split("/")[-1]}')
+        else:
+            logger.info(f'Processing {path.split("/")[-1]} ({index}/{total})')
 
         extension = os.path.splitext(path.split('/')[-1])[-1]
         extension = extension.lower()
