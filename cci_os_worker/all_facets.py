@@ -23,6 +23,8 @@ from ceda_elasticsearch_tools.elasticsearch import CEDAElasticsearchClient
 from fbi_directory_check.utils import check_timeout
 
 from .utils import load_config, UpdateHandler, set_verbose
+from .errors import HandlerError, DocMetadataError
+from cci_os_worker.filehandlers import NetCdfFile, GenericFile
 
 from cci_os_worker import logstream
 
@@ -47,6 +49,53 @@ class FacetUpdateHandler(UpdateHandler):
 
         self.es = CEDAElasticsearchClient(headers={'x-api-key': api_key})
 
+    def _get_project_info(self, path):
+        """
+        Get project info for a specific path
+        """
+
+        extension = os.path.splitext(path.split('/')[-1])[-1]
+        extension = extension.lower()
+
+        if extension == '.nc':
+            handler = NetCdfFile
+        else:
+            handler = GenericFile
+
+        calculate_md5 = self._conf.get('calculate_md5',False)
+
+        if handler is None:
+            raise HandlerError(filename=path)
+
+        handler_instance = handler(path, 3, calculate_md5=calculate_md5)
+
+        # FutureDetail: Remove manifest from 'doc' if unneeded (no indexing required.)
+        doc, phenomena, spatial = handler_instance.get_metadata()
+
+        if doc is None:
+            raise DocMetadataError(filename=path)
+        if len(doc) > 1:
+            doc = doc[0]
+
+        if phenomena:
+            doc['info']['phenomena'] = phenomena
+        if spatial:
+            doc['info']['spatial'] = spatial
+
+        spot = self.pt.spots.get_spot(path)
+
+        if spot is not None:
+            doc['info']['spot_name'] = spot
+
+        # Replace the UID and GID with name and group
+        uid = doc['info']['user']
+        gid = doc['info']['group']
+
+        doc['info']['user'] = self.ldap_interface.get_user(uid)
+        doc['info']['group'] = self.ldap_interface.get_group(gid)
+
+        return doc
+
     def _single_process_file(self, filepath: str, index: int = None, total: int = None):
         """
         Perform facet scanning for a specific filepath
@@ -68,7 +117,8 @@ class FacetUpdateHandler(UpdateHandler):
         project = {
             'projects': {
                 handler.project_name: facets
-            }
+            },
+            'info': self._get_project_info(filepath)
         }
 
         if self._test:
@@ -121,7 +171,7 @@ def _get_command_line_args():
         'output': args.output
     }
 
-def facet_main(args: dict = None):
+def main(args: dict = None):
     if args is None:
         args = _get_command_line_args()
     if isinstance(args['conf'], str):

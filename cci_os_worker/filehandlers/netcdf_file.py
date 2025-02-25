@@ -258,7 +258,7 @@ class NetCdfFile(GenericFile):
         :returns:  A dict containing information compatible with current es index level 2.
         """
         # level 1
-        file_info = self.get_metadata_level1()
+        file_info = self.get_metadata_level1()[0]
         spatial = None
         netcdf_phenomena = None
 
@@ -266,12 +266,11 @@ class NetCdfFile(GenericFile):
             return None
 
         with netCDF4.Dataset(self.file_path) as netcdf:
-            netcdf_phenomena = self.get_phenomena(netcdf)
+            netcdf_phenomena = self.get_phenomena(netcdf)[0]
             geo_info = self.get_geospatial(netcdf)
             temp_info = self.get_temporal(netcdf)
 
         self.handler_id = "Netcdf handler level 3."
-
 
         if geo_info:
 
@@ -283,9 +282,9 @@ class NetCdfFile(GenericFile):
             spatial = {"coordinates": spatial["geometries"]["search"]}
 
         if temp_info:
-            file_info[0]["info"]["temporal"] = temp_info
+            file_info["info"]["temporal"] = temp_info
 
-            file_info[0]["info"]["read_status"] = "Successful"
+            file_info["info"]["read_status"] = "Successful"
         return file_info, netcdf_phenomena, spatial
 
     def __enter__(self):
@@ -309,6 +308,4 @@ if __name__ == "__main__":
 
     ncf = NetCdfFile(file, level)
     start = datetime.datetime.today()
-    print(ncf.get_metadata())
     end = datetime.datetime.today()
-    print(end - start)

@@ -61,7 +61,6 @@ class ElasticsearchDeleter(UpdateHandler):
             logger.info(f'DRYRUN: Skipped deleting {filepath.split("/")[-1]}')
             return 0
         
-
 def _get_command_line_args():
     """
     Get the command line arguments for the facet scan

@@ -117,7 +117,7 @@ class UpdateHandler:
         fail_list = []
         # Process all files individually.
         for idx, fp in enumerate(datasets):
-            status = self._process_file(fp, index=idx, total=total)
+            status = self._process_file(fp, index=idx+1, total=total)
             if status != 0:
                 logger.error(status)
                 fail_list.append(fp)
