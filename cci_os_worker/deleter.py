@@ -72,6 +72,7 @@ def _get_command_line_args():
     parser.add_argument('-d','--dryrun', dest='dryrun', action='store_true', help='Perform in dryrun mode')
     parser.add_argument('-t','--test', dest='test', action='store_true', help='Perform in test/staging mode')
     parser.add_argument('-v','--verbose', action='count', default=2, help='Set level of verbosity for logs')
+    parser.add_argument('-o','--output', dest='output', default=None, help='Send fail list to an output file')
 
     args = parser.parse_args()
 
@@ -80,7 +81,8 @@ def _get_command_line_args():
         'conf': args.conf,
         'dryrun': args.dryrun,
         'test': args.test,
-        'verbose': args.verbose-1
+        'verbose': args.verbose-1,
+        'output': args.output
     }
 
 def main(args: dict = None):
