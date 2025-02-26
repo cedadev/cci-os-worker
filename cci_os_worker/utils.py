@@ -83,6 +83,16 @@ class UpdateHandler:
         with open(filename,'w') as f:
             f.write(json.dumps(contents))
 
+    def _warn_tagger_root(self):
+        """
+        Display warning message for unset tagger root
+        """
+
+        if not os.environ.get('JSON_TAGGER_ROOT'):
+            logger.warning('!!!')
+            logger.warning('JSON_TAGGER_ROOT environment variable is not set')
+            logger.warning('!!!')
+
     def _ensure_cache(self):
         """
         Ensure the cache directory exists
@@ -97,6 +107,7 @@ class UpdateHandler:
         """
 
         logger.info(f'Processing deposits for {datafile_path}')
+        self._warn_tagger_root()
 
         if not os.path.isfile(datafile_path):
             raise ValueError(
@@ -121,6 +132,8 @@ class UpdateHandler:
             if status != 0:
                 logger.error(status)
                 fail_list.append(fp)
+
+        self._warn_tagger_root()
         return fail_list
 
     def process_removals(self, datafile_path: str):
