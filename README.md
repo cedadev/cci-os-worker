@@ -42,7 +42,7 @@ cci-os-worker = { git = "https://github.com/cedadev/cci-os-worker.git", tag="v0.
 ```
 
 **Poetry 2.0.1 and later**
-The exact package address and tag should be added to a `requirements_fix.txt` file, which should then be installed as an additional step when using this package. This is in reference to the note on Poetry version 2 above.
+This package is now a pip-installable published package as of 11th April 2025! That means for packages using Poetry 2 or higher, the cci-os-worker can be added via Poetry at version 0.5.0 or higher
 
 ## 2. Usage
 
@@ -51,8 +51,10 @@ The exact package address and tag should be added to a `requirements_fix.txt` fi
 Determining the set of files to operate over can be done in two ways using built-in scripts here, or indeed by any other means. If the intention is to submit to a rabbit queue however, this script is required with the additional `-R` parameter to submit to a queue, and the configuration for the queue given by a yaml file provided as `--conf`.
 
 ```
-fbi_rescan_dir path/to/json/directory/ --extension nc -l 1 -o path/to/dataset/filelist.txt
+rescan_dir path/to/json/directory/ --extension nc -l 1 -o path/to/dataset/filelist.txt
 ```
+
+**NOTE**: As of v0.5.0 this changed from `fbi_rescan_dir` to simply `rescan_dir`.
 
 In the above command:
  - `r` represents a recursive look through identified directories.
@@ -64,7 +66,7 @@ In the above command:
 This command can also be run for a known directory to expand into a list of datasets:
 
 ```
-fbi_rescan_dir my/datasets/path/ -l 2 -o path/to/dataset/filelist.txt
+rescan_dir my/datasets/path/ -l 2 -o path/to/dataset/filelist.txt
 ```
 
 In this case we specify `l` as 2 since there are no JSON files involved. The extension/file_regex options can also be added here, but as the `nc` option is a default value we have omitted it here.
@@ -75,8 +77,10 @@ The facet scanner workflow utilises both the facet and tag scanners to produce t
 
 The environment variable `JSON_TAGGER_ROOT` should be set, which should be the path to the top-level directory under which all JSON files are placed. These JSON files provide defaults and mappings to values placed in the opensearch records - supplementary material to aid facet scanning or replace found values.
 
+As of v0.5.0 the two workflows (facet and FBI) have been combined into one singular workflow to generate all portions of the Opensearch records. This can be run with the following command:
+
 ```
- $ facetscan path/to/dataset/filelist.txt path/to/config/file.yaml
+ $ cci_os_update path/to/dataset/filelist.txt path/to/config/file.yaml
 ```
 (Note: Verbose flag -v can be added to the above command.)
 
@@ -94,13 +98,5 @@ ldap_configuration:
   hosts:
     - ldap://homer.esc.rl.ac.uk
     - ldap://marge.esc.rl.ac.uk
-```
-
-### 2.3 Run the FBI/Info workflow
-
-As of 17/12/2024 this workflow is still referred to as the FBI workflow despite not pushing to the `ceda-fbi` index. This section deals with extracting information from the provided files (temporal/spatial/phenomena) and adding to the Opensearch records. If the file-opening mechanism is not known or well defined, this information is limited to what can be extracted from the file name.
-
-```
- $ fbi_update path/to/dataset/filelist.txt path/to/config/file.yaml
 ```
 
