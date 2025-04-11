@@ -9,7 +9,7 @@ import sys
 import logging
 import hashlib
 import argparse
-from ceda_elasticsearch_tools.elasticsearch import CEDAElasticsearchClient
+from elasticsearch import Elasticsearch
 
 from cci_os_worker import logstream
 from .utils import load_config
@@ -60,7 +60,9 @@ def dump_errors():
     else:
         index = conf['failure_index']['name']
     
-    es = CEDAElasticsearchClient(headers=esconf['headers'])
+    es = Elasticsearch(
+        hosts=['https://elasticsearch.ceda.ac.uk'],
+        headers=esconf['headers'])
 
     hits = es.search(index=index, doc_type="_doc")['hits']['hits']
 

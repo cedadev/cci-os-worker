@@ -12,6 +12,8 @@ import logging
 
 from cci_os_worker import logstream
 
+from elasticsearch import Elasticsearch
+
 logger = logging.getLogger(__name__)
 logger.addHandler(logstream)
 logger.propagate = False
@@ -67,6 +69,12 @@ class UpdateHandler:
         self._test = test
         self._conf = conf
 
+        api_key = conf['elasticsearch']['x-api-key']
+
+        self.es = Elasticsearch(
+            hosts=['https://elasticsearch.ceda.ac.uk'],
+            headers={'x-api-key': api_key})
+
     def _local_cache(self, filename, contents):
         """
         Cache contents of Opensearch record locally
@@ -83,6 +91,16 @@ class UpdateHandler:
         with open(filename,'w') as f:
             f.write(json.dumps(contents))
 
+    def _warn_tagger_root(self):
+        """
+        Display warning message for unset tagger root
+        """
+
+        if not os.environ.get('JSON_TAGGER_ROOT'):
+            logger.warning('!!!')
+            logger.warning('JSON_TAGGER_ROOT environment variable is not set')
+            logger.warning('!!!')
+
     def _ensure_cache(self):
         """
         Ensure the cache directory exists
@@ -97,6 +115,7 @@ class UpdateHandler:
         """
 
         logger.info(f'Processing deposits for {datafile_path}')
+        self._warn_tagger_root()
 
         if not os.path.isfile(datafile_path):
             raise ValueError(
@@ -121,6 +140,8 @@ class UpdateHandler:
             if status != 0:
                 logger.error(status)
                 fail_list.append(fp)
+
+        self._warn_tagger_root()
         return fail_list
 
     def process_removals(self, datafile_path: str):

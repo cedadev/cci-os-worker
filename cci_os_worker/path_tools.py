@@ -6,14 +6,13 @@ __license__ = 'BSD - see LICENSE file in top-level package directory'
 __contact__ = 'daniel.westwood@stfc.ac.uk'
 
 from pathlib import Path
-from ceda_elasticsearch_tools.core.log_reader import SpotMapping
 import os
 import requests
 from json.decoder import JSONDecodeError
 import json
 import hashlib
 from requests.exceptions import Timeout
-from directory_tree import DatasetNode
+from ceda_directory_tree import DatasetNode
 
 from typing import Optional, Tuple, List
 
@@ -23,6 +22,162 @@ from cci_os_worker import logstream
 logger = logging.getLogger(__name__)
 logger.addHandler(logstream)
 logger.propagate = False
+
+class SpotMapping():
+    """
+    Downloads the spot mapping from the cedaarchiveapp.
+    Makes two queryable dicts:
+        - spot2pathmapping = provide spot and return file path
+        - path2spotmapping = provide a file path and the spot will be returned
+    """
+    url = "http://cedaarchiveapp.ceda.ac.uk/cedaarchiveapp/fileset/download_conf/"
+    spot2pathmapping = {}
+    path2spotmapping = {}
+
+    # Remove logging message when running script
+    logging.getLogger("requests").setLevel(logging.WARNING)
+
+    def __init__(self, test=False, spot_file=None, sep='='):
+
+        logging.info("Initialising spots mapping with test: {} and spot file: {}".format(test, spot_file))
+
+        if test:
+            self.spot2pathmapping['spot-1400-accacia'] = "/badc/accacia"
+            self.spot2pathmapping['abacus'] = "/badc/abacus"
+
+        elif spot_file:
+            with open(spot_file) as reader:
+                spot_mapping = reader.readlines()
+
+            self._build_mapping(spot_mapping, sep=sep)
+
+        else:
+            self._download_mapping()
+
+    def __iter__(self):
+        return iter(self.spot2pathmapping)
+
+    def __len__(self):
+        return len(self.spot2pathmapping)
+
+    def _download_mapping(self):
+        """
+        Download the mapping from the cedaarchiveapp and build mappings.
+        """
+
+        logging.info("Downloading spots from {}".format(self.url))
+
+        response = requests.get(self.url)
+
+        if response.status_code != 200:
+            logging.error("Error getting mapping from cedaarchiveapp status code: {}, reason: {}".format(response.status_code, response.reason))
+            raise Exception("bad response status code: {}, reason: {}".format(response.status_code, response.reason))
+
+        spot_mapping = response.text.split('\n')
+
+        self._build_mapping(spot_mapping)
+
+    def _build_mapping(self, spot_mapping, sep=None):
+        """
+        Build the spot mapping dictionaries
+        :param spot_mapping: list of mappings
+        """
+
+        for line in spot_mapping:
+            if not line.strip(): continue
+            spot, path = line.strip().split(sep)
+
+            if spot in ("spot-2502-backup-test",): continue
+            self.spot2pathmapping[spot] = path
+            self.path2spotmapping[path] = spot
+
+    def get_archive_root(self, key):
+        """
+
+        :param key: Provide the spot
+        :return: Returns the directory mapped to that spot
+        """
+
+        # Get the path to the spot
+        archive_root = self.spot2pathmapping.get(key)
+
+        return archive_root
+
+    def get_spot(self, key):
+        """
+        The directory stored in elasticsearch is the basename for the specific file. The directory stored on the spots
+        page is further up the directory structure but there is no common cut off point as it depends on how many files there
+        are in each dataset. This function recursively starts at the end of the directory stored in elasticsearch
+        and gradually moves back up the file structure until it finds a match in the path2spot dict.
+
+        :param key: Provide a filename or directory
+        :return: Returns the spot which encompasses that file or directory.
+        """
+
+        archive_path = self.get_archive_path(key)
+
+        if archive_path:
+            while (archive_path not in self.path2spotmapping) and (archive_path != '/'):
+                archive_path = os.path.dirname(archive_path)
+
+        if archive_path == '/' or archive_path is None:
+            return None
+
+        return self.path2spotmapping[archive_path]
+
+    def get_spot_from_storage_path(self, path):
+        """
+        Extract the spot name from the storage path
+
+        :param path: Path to test
+        :return: spot name and path suffix
+        """
+
+        # Setup output
+        spot, suffix = None, None
+
+        try:
+            storage_suffix = path.split('/archive/')[1]
+            spot = storage_suffix.split('/')[0]
+            suffix = storage_suffix.split(spot + '/')[1]
+
+        except IndexError:
+            logging.warning("Error getting spot from: {}".format(path))
+
+        return spot, suffix
+
+    def get_archive_path(self, path):
+        storage_path = os.path.realpath(path)
+
+        spot, suffix = self.get_spot_from_storage_path(storage_path)
+
+        spot_path = self.get_archive_root(spot)
+
+        try:
+            archive_path = os.path.join(spot_path, suffix)
+
+        # Joining None produces an AttributeError in py2 and a TypeError py3
+        except (AttributeError, TypeError):
+            archive_path = spot_path
+
+        return archive_path
+
+    def is_archive_path(self, path):
+        """
+        Archive path refers to the location in the archive where the file exists.
+        In the archive there are 3 path types:
+            - storage path: the actual location of the file eg. /datacentre/archvol3/pan125/archive/namblex/data/...
+            - archive path: the path with the spot mapping replacing the storage prefix eg. /badc/namblex/data/aber-radar-1290mhz/20020831/
+            - symlink path: an alternative route to the file as displayed using pydap eg. badc/ncas-observations/data/man-radar-1290mhz/previous-versions/2002/08/31/
+
+        This function takes the input path, gets the storage path, replaces the storage prefix with spot mapping to get the archive
+        path and compares it to the input path. Returns True if input path is archive path.
+
+        :param path: file path to test
+        :return: Bool
+        """
+
+        return path == self.get_archive_path(path)
 
 def process_observations(results):
     """

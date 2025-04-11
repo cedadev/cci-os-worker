@@ -5,26 +5,13 @@ class TestConsistency:
     def test_core(self):
 
         from cci_os_worker.errors import HandlerError, DocMetadataError
-        from cci_os_worker.facet_scan import (
+        from cci_os_worker.all_facets import (
             FacetUpdateHandler,
             _get_command_line_args,
-            facet_main
-        )
-        from cci_os_worker.fbi_update import (
-            FBIUpdateHandler,
-            get_bytes_from_file,
-            get_file_header,
-            _get_command_line_args,
-            fbi_main
+            main
         )
 
         from cci_os_worker.path_tools import PathTools
-        
-        from cci_os_worker.run_all import (
-            get_command_line_arguments,
-            load_config,
-            main
-        )
 
         from cci_os_worker.utils import (
             set_verbose,

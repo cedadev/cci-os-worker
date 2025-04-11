@@ -12,7 +12,7 @@ import os
 
 from typing import Union
 
-from facet_scanner.core.facet_scanner import FacetScanner
+from cci_facet_scanner.core.facet_scanner import FacetScanner
 from ceda_elasticsearch_tools.elasticsearch import CEDAElasticsearchClient
 from fbi_directory_check.utils import check_timeout
 
@@ -34,10 +34,6 @@ class ElasticsearchDeleter(UpdateHandler):
         logger.info('Loading ES Deleter')
 
         super().__init__(conf, dryrun=dryrun, test=test)
-
-        api_key = conf['elasticsearch']['x-api-key']
-
-        self.es = CEDAElasticsearchClient(headers={'x-api-key': api_key})
 
     def _remove_file(self, filepath):
         """
@@ -72,6 +68,7 @@ def _get_command_line_args():
     parser.add_argument('-d','--dryrun', dest='dryrun', action='store_true', help='Perform in dryrun mode')
     parser.add_argument('-t','--test', dest='test', action='store_true', help='Perform in test/staging mode')
     parser.add_argument('-v','--verbose', action='count', default=2, help='Set level of verbosity for logs')
+    parser.add_argument('-o','--output', dest='output', default=None, help='Send fail list to an output file')
 
     args = parser.parse_args()
 
@@ -80,7 +77,8 @@ def _get_command_line_args():
         'conf': args.conf,
         'dryrun': args.dryrun,
         'test': args.test,
-        'verbose': args.verbose-1
+        'verbose': args.verbose-1,
+        'output': args.output
     }
 
 def main(args: dict = None):
