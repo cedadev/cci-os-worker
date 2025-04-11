@@ -2,10 +2,12 @@
 
 ![Static Badge](https://img.shields.io/badge/cci%20tagger%20workflow-8AD6F6)
 ![GitHub Release](https://img.shields.io/github/v/release/cedadev/cci-os-worker)
+[![PyPI version](https://badge.fury.io/py/cci-os-worker.svg)](https://pypi.python.org/pypi/cci-os-worker/)
+
 
 **See release notes for change history**
 
-This package serves as a wrapper for the CCI Opensearch Workflow, which involves several independent packages with multiple dependencies. Primarily the CCI Tagger (cci-tag-scanner) and Facet scanner (facet-scanner) are combined, with elements from the CEDA FBS (ceda-fbs-cci) package to create the components for Opensearch records in Elasticsearch.
+This package serves as a wrapper for the CCI Opensearch Workflow, which involves several independent packages with multiple dependencies. Primarily the CCI Tagger (cci-tag-scanner) and Facet scanner (cci-facet-scanner) are combined, with elements from the CEDA FBS (ceda-fbs-cci) package to create the components for Opensearch records in Elasticsearch.
 
 **NOTE:** When publishing a new tagged release of this package, please make sure to rebuild the corresponding Docker image, in the CEDA gitlab repository `cci_opensearch_base`. This repository has a single build-image step that should be rerun (following the steps found there) to ensure any changes to this package are picked up by the OS worker deployment.
 
@@ -15,23 +17,14 @@ This package serves as a wrapper for the CCI Opensearch Workflow, which involves
 
 This package can be cloned directly or used as a dependency in a pyproject file.
 
-```
- $ git clone git@github.com:cedadev/cci-os-worker.git
- $ cd cci-os-worker
-```
-Set up a python virtual environment
+Set up a python virtual environment:
 ```
  $ python -m venv .venv
  $ source .venv/bin/activate
- $ pip install .
+ $ pip install cci-os-worker
 ```
 
-NOTE: As of 22nd Jan 2025 the `cci-os-worker` repository has been upgraded for use with Poetry version 2. This requires the use of an additional `requirements_fix.txt` patch while a solution for poetry dependencies in github is worked on. The above installation MUST be supplemented with:
-
-```
- $ pip install -r requirements_fix.txt
-```
-This is a temporary fix and will be removed when poetry is patched.
+NOTE: As of 22nd Jan 2025 the `cci-os-worker` repository has been upgraded for use with Poetry version 2. The temporary solution to use a `requirements_fix.txt` file has been removed as this package is now on Pypi.
 
 ### 1.1. Use in other packages
 
@@ -42,7 +35,11 @@ cci-os-worker = { git = "https://github.com/cedadev/cci-os-worker.git", tag="v0.
 ```
 
 **Poetry 2.0.1 and later**
-This package is now a pip-installable published package as of 11th April 2025! That means for packages using Poetry 2 or higher, the cci-os-worker can be added via Poetry at version 0.5.0 or higher
+This package is now a pip-installable published package as of 11th April 2025! That means for packages using Poetry 2 or higher, the cci-os-worker can be added via Poetry at version 0.5.0 or higher.
+
+```
+poetry add cci-os-worker^0.5.0
+```
 
 ## 2. Usage
 
