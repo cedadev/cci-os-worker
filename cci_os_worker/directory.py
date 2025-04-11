@@ -18,7 +18,7 @@ import aiofiles.os as aos
 import glob
 import json
 
-from .utils import set_verbose
+from .utils import set_verbose, load_config
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logstream)
@@ -136,7 +136,7 @@ class RescanDirs:
 
         self.scan_level = scan_level
         self.use_rabbit = use_rabbit
-        self.conf = conf
+        self.conf = load_config(conf)
 
         self.file_limit = self.conf.get('file_limit',None)
 
@@ -276,7 +276,12 @@ class RescanDirs:
             jsons = glob.glob(scanpath, recursive=True)
 
             if self.file_limit:
-                self.file_limit = int(self.file_limit/jsons)
+                if len(jsons) != 0:
+                    self.file_limit = int(self.file_limit/len(jsons))
+                else:
+                    raise FileNotFoundError(
+                        'No JSON files were located.'
+                    )
             else:
                 self.file_limit = 99999999999999
 
@@ -309,6 +314,7 @@ class RescanDirs:
                     logger.info(f' > {len(dfiles)} datasets ({file.split("/")[-1]}) ({len(scan_files)} total)')
 
                     if len(add_files) > self.file_limit:
+                        add_files = add_files[:self.file_limit]
                         break
 
                 scan_files += add_files
