@@ -15,6 +15,8 @@ import logging
 import hashlib
 import argparse
 import os
+from datetime import datetime
+import glob
 
 import asyncio
 
@@ -29,6 +31,8 @@ from .path_tools import PathTools
 from .directory import check_timeout
 from .utils import load_config, UpdateHandler, set_verbose
 from .errors import HandlerError, DocMetadataError
+
+from slack_sdk import WebClient
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logstream)
@@ -175,11 +179,74 @@ def _get_command_line_args():
         'output': args.output
     }
 
+def get_startup_slack(timestamp: str, file_count: int, is_sample: bool):
+    """
+    Get the startup message for the job.
+    """
+    job_summary = ['----------------------------------------------']
+    job_summary.append(f'Starting CCI OS Worker Job ({timestamp})')
+    job_summary.append('')
+    job_summary.append('Json files:')
+    jsons_new = os.environ.get("JSON_TAGGER_NEW")
+    jsons = glob.glob(f'{jsons_new}/*.json')
+    for js in jsons:
+        job_summary.append(
+            f' - {js.split("/")[-1]}'
+        )
+    job_summary.append('')
+
+    ds_count = f'Datasets identified: {file_count}'
+    if is_sample:
+        ds_count += ' (sample run)'
+    job_summary.append(ds_count)
+    job_summary.append('----------------------------------------------')
+
+    return '\n'.join(job_summary)
+
+def get_completion_slack(timestamp: str, fail_list: list, num_jobs: int):
+    """
+    Get the completion message for the job"""
+    job_complete = ['----------------------------------------------']
+    job_complete.append(f'CCI OS Worker Job Complete! ({timestamp})')
+    job_complete.append(f' - Datasets tagged: {num_jobs}')
+    if len(fail_list) == 0: 
+        job_complete.append(f' - No Failures detected! :)')
+    else:
+        job_complete.append(f' - {len(fail_list)} dataset(s) failed to scan :( ')
+    job_complete.append('----------------------------------------------')
+    return '\n'.join(job_complete)
+
+
 def main(args: dict = None):
     if args is None:
         args = _get_command_line_args()
     if isinstance(args['conf'], str):
         conf = load_config(args['conf'])
+    
+    slack_cfg = conf.get('slack_cfg',None)
+    slack_client = None
+
+    timestamp = datetime.now().strftime("%H:%M:%S %d/%m/%y")
+
+    is_sample = True
+    file_count = conf.get('file_limit',None)
+    if file_count is None:
+        is_sample = False
+
+        with open(args['datafile_path']) as f:
+            file_count = len(f.readlines())
+
+    if slack_cfg is not None:
+
+        token = slack_cfg['token']
+        channel = slack_cfg['channel']
+        slack_client = WebClient(token=token)
+        slack_client.chat_postMessage(
+            channel=channel, 
+            text=get_startup_slack(timestamp, file_count, is_sample),
+            username=f'CCI Tag Bot - Startup'
+        )
+        logger.info('Message posted!')
 
     if conf is None:
         logger.error('Config file could not be loaded')
@@ -206,6 +273,14 @@ def main(args: dict = None):
     if args['output'] is not None and fail_list != []:
         with open(args['output'],'w') as f:
             f.write('\n'.join(fail_list))
+
+    if slack_client is not None:
+
+        slack_client.chat_postMessage(
+            channel=channel, 
+            text=get_completion_slack(timestamp, fail_list, file_count),
+            username=f'CCI Tag Bot - Complete'
+        )
 
 if __name__ == '__main__':
     main()
