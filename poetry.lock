@@ -82,18 +82,18 @@ files = [
 
 [[package]]
 name = "cci-facet-scanner"
-version = "0.3.1"
+version = "0.3.2"
 description = "Extracts facets from datasets to add to elasticsearch."
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "cci_facet_scanner-0.3.1-py3-none-any.whl", hash = "sha256:e6b971b6306c1916ed4c654d50a24f477255552c5cdb98058cdfdb82459c4b83"},
-    {file = "cci_facet_scanner-0.3.1.tar.gz", hash = "sha256:c70aa9dde6b93b2ab5a964847394d5e317a84c7f0453636adc2e347b5ecec482"},
+    {file = "cci_facet_scanner-0.3.2-py3-none-any.whl", hash = "sha256:d25ca092a835fa83096af9d79bbfaf6cdaffa8b72aa510d065ac0f3e34d983af"},
+    {file = "cci_facet_scanner-0.3.2.tar.gz", hash = "sha256:e7b995ade31e659d0f37e720adca0abbfde96cb7120b488aabe40cd79b9e0f36"},
 ]
 
 [package.dependencies]
-cci-tag-scanner = ">=2.3.0"
+cci-tag-scanner = ">=2.3.1"
 elasticsearch = ">=7,<8"
 pytest = ">=8.3.3,<9.0.0"
 requests = ">=2.32.3,<3.0.0"
@@ -102,14 +102,14 @@ tqdm = ">=4.66.6,<5.0.0"
 
 [[package]]
 name = "cci-tag-scanner"
-version = "2.3.0"
+version = "2.3.1"
 description = "This package provides a command line tool moles_esgf_tag to generate dataset tags for both MOLES and ESGF."
 optional = false
 python-versions = "<4,>=3.9"
 groups = ["main"]
 files = [
-    {file = "cci_tag_scanner-2.3.0-py3-none-any.whl", hash = "sha256:861f43e03f2ee3b425f98af20a5d0f08e35ac5c335b19b941a9a56e9a1e327c0"},
-    {file = "cci_tag_scanner-2.3.0.tar.gz", hash = "sha256:6248ce4d074b71691056f3622b31698c4f70e39fc6b4a511328df92afd950ec5"},
+    {file = "cci_tag_scanner-2.3.1-py3-none-any.whl", hash = "sha256:c3a6c0b3b286997b29250ff982f9957bd98326efe46984dccc25aa39933571d9"},
+    {file = "cci_tag_scanner-2.3.1.tar.gz", hash = "sha256:081b93959bc2641a47f5432ae37f5754b3d1bffffebe30902e228845fc061092"},
 ]
 
 [package.dependencies]
@@ -1237,4 +1237,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9,<4"
-content-hash = "e84ebf9019aaa6b5d9b22b3c2f4f1f50b19b070151b74cf1a6cdc901a0f39135"
+content-hash = "550abdabf50da9f584fd1676903dd8c1eb486a47ab125a891ee26069155aa703"
