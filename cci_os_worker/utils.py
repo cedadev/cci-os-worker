@@ -12,6 +12,8 @@ import logging
 
 from cci_os_worker import logstream
 
+from elasticsearch import Elasticsearch
+
 logger = logging.getLogger(__name__)
 logger.addHandler(logstream)
 logger.propagate = False
@@ -66,6 +68,12 @@ class UpdateHandler:
         self._dryrun = dryrun
         self._test = test
         self._conf = conf
+
+        api_key = conf['elasticsearch']['x-api-key']
+
+        self.es = Elasticsearch(
+            hosts=['https://elasticsearch.ceda.ac.uk'],
+            headers={'x-api-key': api_key})
 
     def _local_cache(self, filename, contents):
         """

@@ -12,7 +12,7 @@ import os
 
 from typing import Union
 
-from facet_scanner.core.facet_scanner import FacetScanner
+from cci_facet_scanner.core.facet_scanner import FacetScanner
 from ceda_elasticsearch_tools.elasticsearch import CEDAElasticsearchClient
 from fbi_directory_check.utils import check_timeout
 
@@ -34,10 +34,6 @@ class ElasticsearchDeleter(UpdateHandler):
         logger.info('Loading ES Deleter')
 
         super().__init__(conf, dryrun=dryrun, test=test)
-
-        api_key = conf['elasticsearch']['x-api-key']
-
-        self.es = CEDAElasticsearchClient(headers={'x-api-key': api_key})
 
     def _remove_file(self, filepath):
         """

@@ -18,18 +18,17 @@ import os
 
 import asyncio
 
-from facet_scanner.core.facet_scanner import FacetScanner
-from ceda_elasticsearch_tools.elasticsearch import CEDAElasticsearchClient
-from fbi_directory_check.utils import check_timeout
+from cci_facet_scanner.core.facet_scanner import FacetScanner
+from elasticsearch import Elasticsearch
 
 from cci_os_worker.filehandlers.util import LDAPIdentifier
-from .path_tools import PathTools
+from cci_os_worker.filehandlers import NetCdfFile, GenericFile
+from cci_os_worker import logstream
 
+from .path_tools import PathTools
+from .directory import check_timeout
 from .utils import load_config, UpdateHandler, set_verbose
 from .errors import HandlerError, DocMetadataError
-from cci_os_worker.filehandlers import NetCdfFile, GenericFile
-
-from cci_os_worker import logstream
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logstream)
@@ -47,10 +46,6 @@ class FacetUpdateHandler(UpdateHandler):
         super().__init__(conf, dryrun=dryrun, test=test)
 
         self.facet_scanner = FacetScanner()
-
-        api_key = conf['elasticsearch']['x-api-key']
-
-        self.es = CEDAElasticsearchClient(headers={'x-api-key': api_key})
 
         ldap_hosts = self._conf['ldap_configuration']['hosts']
         self.ldap_interface = LDAPIdentifier(server=ldap_hosts, auto_bind=True)
