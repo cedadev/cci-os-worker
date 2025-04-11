@@ -138,6 +138,8 @@ class RescanDirs:
         self.use_rabbit = use_rabbit
         self.conf = conf
 
+        self.file_limit = self.conf.get('file_limit',None)
+
         # Default match any filename not starting with a . dot
         self._file_regex = file_regex
         self._extension  = extension
@@ -273,6 +275,11 @@ class RescanDirs:
             scanpath = f'{os.path.abspath(self.scan_path)}/**/*.json'
             jsons = glob.glob(scanpath, recursive=True)
 
+            if self.file_limit:
+                self.file_limit = int(self.file_limit/jsons)
+            else:
+                self.file_limit = 99999999999999
+
             for js_count, file in enumerate(jsons):
                 logger.info(f'Processing {file}')
                 # Only want to track the changes in the JSON directory
@@ -290,14 +297,23 @@ class RescanDirs:
                     logger.warning(f'File {file}: "datasets" property is not iterable.')
                     continue
 
+                add_files = []
+
                 dfiles = []
                 for ds_count, d in enumerate(ds):
                     # Find all single files
                     dfiles = [f for f in glob.glob(f'{d}/**/*.*', recursive=True) if re.match(self.file_regex,f)]
-                    scan_files += dfiles
+                    add_files += dfiles
 
-                    logger.info(f'(j: {js_count+1}/{len(jsons)}, d: {ds_count+1}/{len(ds)})')
+                    logger.info(f' > (j: {js_count+1}/{len(jsons)}, d: {ds_count+1}/{len(ds)})')
                     logger.info(f' > {len(dfiles)} datasets ({file.split("/")[-1]}) ({len(scan_files)} total)')
+
+                    if len(add_files) > self.file_limit:
+                        break
+
+                scan_files += add_files
+
+                logger.info(f'Added {len(add_files)} files from JSON file {js_count+1}')
 
         return scan_files
 
