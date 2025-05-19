@@ -1,6 +1,6 @@
 [project]
 name = "cci-os-worker"
-version = "0.6.0"
+version = "0.7.0"
 description = "Worker repo to execute the steps for CCI Opensearch Ingestion, namely facet and tag scanning and updates to the CEDA FBI"
 authors = [
     { name = "Daniel Westwood", email = "daniel.westwood@stfc.ac.uk"}
@@ -17,13 +17,13 @@ classifiers = [
 requires-python = ">=3.9,<4"
 dependencies = [
     "pyyaml (>=6.0.2,<7.0.0)",
-    "elasticsearch (>=7,<8)",
+    "elasticsearch (>=8, <9)",
     "aiofiles (>=24.1.0,<25.0.0)",
     "python-magic (>=0.4.22,<0.5.0)",
     "python-dateutil (>=2.9.0.post0,<3.0.0)",
     "ldap3 (>=2.9,<3.0)",
-    "cci-facet-scanner (>=0.4.1,<0.5.0)",
-    "cci-tag-scanner (>=2.3.2,<3)",
+    "cci-facet-scanner (>=0.5.0,<1)",
+    "cci-tag-scanner (>=2.4.0,<3)",
     "slack-sdk (>=3.35.0,<4.0.0)"
 ]
 

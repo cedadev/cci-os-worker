@@ -267,13 +267,8 @@ def main(args: dict = None):
     fs = FacetUpdateHandler(conf, dryrun=args['dryrun'], test=args['test'])
     fail_list = fs.process_deposits(args['datafile_path'], args['prefix'], file_limit=file_limit)
 
-    logger.info('Failed items:')
-    for f in fail_list:
-        logger.info(f)
-
-    if args['output'] is not None and fail_list != []:
-        with open(args['output'],'w') as f:
-            f.write('\n'.join(fail_list))
+    print('Failed items:')
+    print('\n'.join([f'`{i[0]}`: {i[1]}' for i in fail_list]))
 
     if slack_client is not None:
 
