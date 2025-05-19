@@ -116,7 +116,7 @@ class FacetUpdateHandler(UpdateHandler):
             logger.info(f'Processing {filepath.split("/")[-1]} ({index}/{total})')
 
         # Get the handler for this filepath
-        handler = self.facet_scanner.get_handler(filepath, json_files=None)
+        handler = self.facet_scanner.get_handler(filepath)
 
         # Extract the facets
         facets = handler.get_facets(filepath)
@@ -162,7 +162,7 @@ def _get_command_line_args():
     parser.add_argument('-d','--dryrun', dest='dryrun', action='store_true', help='Perform in dryrun mode')
     parser.add_argument('-t','--test', dest='test', action='store_true', help='Perform in test/staging mode')
     parser.add_argument('-p','--prefix', dest='prefix', default='', help='Prefix to apply to all filenames')
-    parser.add_argument('-v','--verbose', action='count', default=2, help='Set level of verbosity for logs')
+    parser.add_argument('-v','--verbose', action='count', default=0, help='Set level of verbosity for logs')
     parser.add_argument('-f','--file-count', dest='file_count', type=int, help='Add limit to number of files to process.')
     parser.add_argument('-o','--output', dest='output', default=None, help='Send fail list to an output file')
 
@@ -174,7 +174,7 @@ def _get_command_line_args():
         'dryrun': args.dryrun,
         'test': args.test,
         'prefix': args.prefix,
-        'verbose': args.verbose-1,
+        'verbose': args.verbose,
         'file_count': args.file_count,
         'output': args.output
     }
@@ -213,6 +213,7 @@ def get_completion_slack(timestamp: str, fail_list: list, num_jobs: int):
         job_complete.append(f' - No Failures detected! :)')
     else:
         job_complete.append(f' - {len(fail_list)} dataset(s) failed to scan :( ')
+
     job_complete.append('----------------------------------------------')
     return '\n'.join(job_complete)
 
@@ -281,6 +282,14 @@ def main(args: dict = None):
             text=get_completion_slack(timestamp, fail_list, file_count),
             username=f'CCI Tag Bot - Complete'
         )
+
+        if len(fail_list) != 0:
+
+            slack_client.chat_postMessage(
+                channel=channel,
+                text='\n'.join([f'`{i[0]}`: {i[1]}' for i in fail_list]),
+                username='Failure reporter'
+            )
 
 if __name__ == '__main__':
     main()

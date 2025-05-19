@@ -36,6 +36,9 @@ def set_verbose(level: int):
         lg = logging.getLogger(name)
         lg.setLevel(levels[level])
 
+    lg = logging.getLogger('root')
+    lg.setLevel(levels[level])
+
 def load_config(conf: str):
     """
     Load a conf.yaml file to a dictionary
@@ -139,7 +142,7 @@ class UpdateHandler:
             status = self._process_file(fp, index=idx+1, total=total)
             if status != 0:
                 logger.error(status)
-                fail_list.append(fp)
+                fail_list.append([fp, status])
 
         self._warn_tagger_root()
         return fail_list
@@ -163,7 +166,7 @@ class UpdateHandler:
             status = self._remove_file(fp)
             if status != 0:
                 logger.error(status)
-                fail_list.append((fp, status))
+                fail_list.append((fp, str(status)))
         return fail_list
 
     def _process_file(self, filepath: str, index: int = None, total: int = None):
