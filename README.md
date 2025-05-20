@@ -4,7 +4,8 @@
 ![GitHub Release](https://img.shields.io/github/v/release/cedadev/cci-os-worker)
 [![PyPI version](https://badge.fury.io/py/cci-os-worker.svg)](https://pypi.python.org/pypi/cci-os-worker/)
 
-## CEDA Dependencies
+## CEDA Dependencies
+
 ![Static Badge](https://img.shields.io/badge/elasticsearch%20v8-3BBEB1)
 ![Static Badge](https://img.shields.io/badge/MOLES%20API%20v2-00628D)
 
