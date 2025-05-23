@@ -75,7 +75,7 @@ class UpdateHandler:
         api_key = conf['elasticsearch']['x-api-key']
 
         self.es = Elasticsearch(
-            hosts=['https://elasticsearch.ceda.ac.uk'],
+            hosts=conf['elasticsearch']['hosts'],
             headers={'x-api-key': api_key})
 
     def _local_cache(self, filename, contents):
