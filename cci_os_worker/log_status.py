@@ -61,7 +61,7 @@ def dump_errors():
         index = conf['failure_index']['name']
     
     es = Elasticsearch(
-        hosts=['https://elasticsearch.ceda.ac.uk'],
+        hosts=conf['elasticsearch']['hosts'],
         headers=esconf['headers'])
 
     hits = es.search(index=index, doc_type="_doc")['hits']['hits']
