@@ -1,6 +1,6 @@
 import netCDF4
 import six
-from dateutil.parser import parse
+from dateutil.parser import parse, ParserError
 import re
 import logging
 import traceback
@@ -143,16 +143,22 @@ class NetCdfFile(GenericFile):
             except AttributeError:
                 pass
 
-        # retrieve the start and end times
-        if start_time:
-            start_time = parse(start_time)
-        elif times:
-            start_time = times[0]
+        try:
+            # retrieve the start and end times
+            if start_time:
+                start_time = parse(start_time)
+            elif times:
+                start_time = times[0]
 
-        if end_time:
-            end_time = parse(end_time)
-        elif times:
-            end_time = times[-1]
+            if end_time:
+                end_time = parse(end_time)
+            elif times:
+                end_time = times[-1]
+        except ParserError as err:
+            logger.error('Start/End time attribute parse error')
+            raise AttributeError(
+                f'Start/end time attribute error: {err}'
+            )
 
         # Check the order if we have a start and end
         if all([start_time, end_time]):
