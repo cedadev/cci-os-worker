@@ -14,6 +14,8 @@ from elasticsearch import Elasticsearch
 from cci_os_worker import logstream
 from .utils import load_config
 
+from cci_tag_scanner.utils.elasticsearch import es_connection_kwargs
+
 logger = logging.getLogger(__name__)
 logger.addHandler(logstream)
 logger.propagate = False
@@ -47,22 +49,19 @@ def dump_errors():
     conf = load_config(args['conf'])
     outfile = args['output']
 
-    esconf = {
-        'headers': {
-            'x-api-key': conf['elasticsearch']['x-api-key']
-        },
-            'retry_on_timeout': True,
-            'timeout': 30
-    }
-
     if args['test']:
         index = conf['failure_index_test']['name']
     else:
         index = conf['failure_index']['name']
     
     es = Elasticsearch(
-        hosts=conf['elasticsearch']['hosts'],
-        headers=esconf['headers'])
+        es_connection_kwargs(
+            hosts=conf['elasticsearch']['hosts'],
+            api_key=conf['elasticsearch']['x-api-key'],
+            retry_on_timeout=True,
+            timeout=30
+        )
+    )
 
     hits = es.search(index=index, doc_type="_doc")['hits']['hits']
 

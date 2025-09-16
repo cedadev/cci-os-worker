@@ -49,7 +49,11 @@ class FacetUpdateHandler(UpdateHandler):
 
         super().__init__(conf, dryrun=dryrun, test=test)
 
-        self.facet_scanner = FacetScanner()
+        facet_kwargs = {}
+        if conf.get('ontology_local',False):
+            facet_kwargs = {'ontology_local':conf['ontology_local']}
+
+        self.facet_scanner = FacetScanner(**facet_kwargs)
 
         ldap_hosts = self._conf['ldap_configuration']['hosts']
         self.ldap_interface = LDAPIdentifier(server=ldap_hosts, auto_bind=True)
@@ -116,7 +120,7 @@ class FacetUpdateHandler(UpdateHandler):
             logger.info(f'Processing {filepath.split("/")[-1]} ({index}/{total})')
 
         # Get the handler for this filepath
-        handler = self.facet_scanner.get_handler(filepath)
+        handler = self.facet_scanner.get_handler(filepath, **self.es_kwargs)
 
         # Extract the facets
         facets = handler.get_facets(filepath)

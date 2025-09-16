@@ -13,6 +13,7 @@ import logging
 from cci_os_worker import logstream
 
 from elasticsearch import Elasticsearch
+from cci_tag_scanner.utils.elasticsearch import es_connection_kwargs
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logstream)
@@ -74,10 +75,11 @@ class UpdateHandler:
 
         api_key = conf['elasticsearch']['x-api-key']
 
-        self.es = Elasticsearch(
-            hosts=conf['elasticsearch']['hosts'],
-            headers={'x-api-key': api_key})
-
+        self.es_kwargs = {
+            'hosts': conf['elasticsearch'].get('hosts',None),
+            'api_key': api_key
+        }
+        self.es = Elasticsearch(**es_connection_kwargs(**self.es_kwargs))
     def _local_cache(self, filename, contents):
         """
         Cache contents of Opensearch record locally
@@ -178,4 +180,5 @@ class UpdateHandler:
             self._single_process_file(filepath, index=index, total=total)
             return 0
         except Exception as err:
+            raise err
             return err
