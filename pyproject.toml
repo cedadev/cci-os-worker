@@ -1,6 +1,6 @@
 [project]
 name = "cci-os-worker"
-version = "0.8"
+version = "0.8.1"
 description = "Worker repo to execute the steps for CCI Opensearch Ingestion, namely facet and tag scanning and updates to the CEDA FBI"
 authors = [
     { name = "Daniel Westwood", email = "daniel.westwood@stfc.ac.uk"}
@@ -34,8 +34,6 @@ build-backend = "poetry.core.masonry.api"
 [project.scripts]
 cci_os_update = "cci_os_worker.all_facets:main"
 cci_delete = "cci_os_worker.deleter:main"
-add_errors = "cci_os_worker.log_status:add_errors"
-dump_errors = "cci_os_worker.log_status:dump_errors"
 
 # From FBI Directory Check
 rescan_dir = "cci_os_worker.directory:rescan_directory"
