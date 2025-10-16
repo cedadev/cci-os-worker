@@ -64,7 +64,7 @@ def load_datasets(datafile_path: str):
 
 class UpdateHandler:
 
-    def __init__(self, conf: dict, dryrun: bool = False, test: bool = False):
+    def __init__(self, conf: dict, dryrun: bool = False, test: bool = False, halt: bool = False):
         """
         Initialise this class with config and other switches.
         """
@@ -72,6 +72,7 @@ class UpdateHandler:
         self._dryrun = dryrun
         self._test = test
         self._conf = conf
+        self._halt = halt
 
         api_key = conf['elasticsearch']['x-api-key']
 
@@ -180,5 +181,6 @@ class UpdateHandler:
             self._single_process_file(filepath, index=index, total=total)
             return 0
         except Exception as err:
-            raise err
+            if self._halt:
+                raise err
             return err
