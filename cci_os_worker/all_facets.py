@@ -169,7 +169,7 @@ def _get_command_line_args():
     parser.add_argument('-v','--verbose', action='count', default=0, help='Set level of verbosity for logs')
     parser.add_argument('-f','--file-count', dest='file_count', type=int, help='Add limit to number of files to process.')
     parser.add_argument('-o','--output', dest='output', default=None, help='Send fail list to an output file')
-    parser.add_argument('-h','--halt', dest='halt',action='store_true', help='Halt on errors')
+    parser.add_argument('--halt', dest='halt',action='store_true', help='Halt on errors')
 
     args = parser.parse_args()
 
