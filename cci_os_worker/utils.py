@@ -13,6 +13,7 @@ import logging
 from cci_os_worker import logstream
 
 from elasticsearch import Elasticsearch
+from cci_tag_scanner.utils.elasticsearch import es_connection_kwargs
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logstream)
@@ -63,7 +64,7 @@ def load_datasets(datafile_path: str):
 
 class UpdateHandler:
 
-    def __init__(self, conf: dict, dryrun: bool = False, test: bool = False):
+    def __init__(self, conf: dict, dryrun: bool = False, test: bool = False, halt: bool = False):
         """
         Initialise this class with config and other switches.
         """
@@ -71,13 +72,15 @@ class UpdateHandler:
         self._dryrun = dryrun
         self._test = test
         self._conf = conf
+        self._halt = halt
 
         api_key = conf['elasticsearch']['x-api-key']
 
-        self.es = Elasticsearch(
-            hosts=conf['elasticsearch']['hosts'],
-            headers={'x-api-key': api_key})
-
+        self.es_kwargs = {
+            'hosts': conf['elasticsearch'].get('hosts',None),
+            'api_key': api_key
+        }
+        self.es = Elasticsearch(**es_connection_kwargs(**self.es_kwargs))
     def _local_cache(self, filename, contents):
         """
         Cache contents of Opensearch record locally
@@ -178,4 +181,6 @@ class UpdateHandler:
             self._single_process_file(filepath, index=index, total=total)
             return 0
         except Exception as err:
+            if self._halt:
+                raise err
             return err

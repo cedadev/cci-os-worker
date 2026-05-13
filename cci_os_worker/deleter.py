@@ -12,8 +12,6 @@ import os
 
 from typing import Union
 
-from cci_facet_scanner.core.facet_scanner import FacetScanner
-from ceda_elasticsearch_tools.elasticsearch import CEDAElasticsearchClient
 from fbi_directory_check.utils import check_timeout
 
 from .utils import load_config, UpdateHandler, set_verbose

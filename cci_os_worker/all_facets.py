@@ -40,16 +40,20 @@ logger.propagate = False
 
 class FacetUpdateHandler(UpdateHandler):
 
-    def __init__(self, conf: dict, dryrun: bool = False, test: bool = False):
+    def __init__(self, conf: dict, dryrun: bool = False, test: bool = False, halt: bool = False):
         """
         Initialise this class with the correct connections to 
         establish an elasticsearch client.
         """
         logger.info('Loading Facet Updater')
 
-        super().__init__(conf, dryrun=dryrun, test=test)
+        super().__init__(conf, dryrun=dryrun, test=test, halt=halt)
 
-        self.facet_scanner = FacetScanner()
+        facet_kwargs = {}
+        if conf.get('ontology_local',False):
+            facet_kwargs = {'ontology_local':conf['ontology_local']}
+
+        self.facet_scanner = FacetScanner(**facet_kwargs)
 
         ldap_hosts = self._conf['ldap_configuration']['hosts']
         self.ldap_interface = LDAPIdentifier(server=ldap_hosts, auto_bind=True)
@@ -116,7 +120,7 @@ class FacetUpdateHandler(UpdateHandler):
             logger.info(f'Processing {filepath.split("/")[-1]} ({index}/{total})')
 
         # Get the handler for this filepath
-        handler = self.facet_scanner.get_handler(filepath)
+        handler = self.facet_scanner.get_handler(filepath, **self.es_kwargs)
 
         # Extract the facets
         facets = handler.get_facets(filepath)
@@ -165,6 +169,7 @@ def _get_command_line_args():
     parser.add_argument('-v','--verbose', action='count', default=0, help='Set level of verbosity for logs')
     parser.add_argument('-f','--file-count', dest='file_count', type=int, help='Add limit to number of files to process.')
     parser.add_argument('-o','--output', dest='output', default=None, help='Send fail list to an output file')
+    parser.add_argument('--halt', dest='halt',action='store_true', help='Halt on errors')
 
     args = parser.parse_args()
 
@@ -176,7 +181,8 @@ def _get_command_line_args():
         'prefix': args.prefix,
         'verbose': args.verbose,
         'file_count': args.file_count,
-        'output': args.output
+        'output': args.output,
+        'halt': args.halt
     }
 
 def get_startup_slack(timestamp: str, file_count: int, is_sample: bool):
@@ -264,7 +270,7 @@ def main(args: dict = None):
 
     set_verbose(args['verbose'])
 
-    fs = FacetUpdateHandler(conf, dryrun=args['dryrun'], test=args['test'])
+    fs = FacetUpdateHandler(conf, dryrun=args['dryrun'], test=args['test'], halt=args['halt'])
     fail_list = fs.process_deposits(args['datafile_path'], args['prefix'], file_limit=file_limit)
 
     print('Failed items:')
