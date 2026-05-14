@@ -22,7 +22,7 @@ dependencies = [
     "python-magic (>=0.4.22,<0.5.0)",
     "python-dateutil (>=2.9.0.post0,<3.0.0)",
     "ldap3 (>=2.9,<3.0)",
-    "cci-facet-scanner @ git+https://github.com/cedadev/facet-scanner.git@v0.8.0a",
+    "cci-facet-scanner (>=0.8,<1)",
     "slack-sdk (>=3.35.0,<4.0.0)"
 ]
 
@@ -36,3 +36,6 @@ cci_delete = "cci_os_worker.deleter:main"
 
 # From FBI Directory Check
 rescan_dir = "cci_os_worker.directory:rescan_directory"
+[tool.poetry.group.dev.dependencies]
+pytest = "^9.0.3"
+
