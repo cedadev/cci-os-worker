@@ -53,7 +53,9 @@ class GenericFile(object):
         #Basic information. 
         info["name"] = os.path.basename(self.file_path) #ntpath.basename(file_path)
         info["name_auto"] = info["name"]
-        info["directory"] = os.path.dirname(self.file_path)
+        info["directory"] = os.path.join(
+            os.path.dirname(self.file_path),
+            '') # Adds a trailing slash only if necessary
         info["location"] = "on_disk"
 
         uid,gid = self._get_file_ownership()
