@@ -1,6 +1,6 @@
 [project]
 name = "cci-os-worker"
-version = "0.8.2"
+version = "0.9.0"
 description = "Worker repo to execute the steps for CCI Opensearch Ingestion, namely facet and tag scanning and updates to the CEDA FBI"
 authors = [
     { name = "Daniel Westwood", email = "daniel.westwood@stfc.ac.uk"}
@@ -12,9 +12,9 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3",
 ]
-requires-python = ">=3.9,<4"
+requires-python = ">=3.12,<4"
 dependencies = [
     "pyyaml (>=6.0.2,<7.0.0)",
     "elasticsearch (>=8, <9)",
@@ -22,8 +22,7 @@ dependencies = [
     "python-magic (>=0.4.22,<0.5.0)",
     "python-dateutil (>=2.9.0.post0,<3.0.0)",
     "ldap3 (>=2.9,<3.0)",
-    "cci-facet-scanner (>=0.7.6,<1)",
-    "cci-tag-scanner (>=2.6.2,<3)",
+    "cci-facet-scanner (>=0.8,<1)",
     "slack-sdk (>=3.35.0,<4.0.0)"
 ]
 
@@ -37,3 +36,6 @@ cci_delete = "cci_os_worker.deleter:main"
 
 # From FBI Directory Check
 rescan_dir = "cci_os_worker.directory:rescan_directory"
+[tool.poetry.group.dev.dependencies]
+pytest = "^9.0.3"
+

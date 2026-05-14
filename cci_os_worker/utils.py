@@ -13,7 +13,7 @@ import logging
 from cci_os_worker import logstream
 
 from elasticsearch import Elasticsearch
-from cci_tag_scanner.utils.elasticsearch import es_connection_kwargs
+from cci_facet_scanner.utils.elasticsearch import es_connection_kwargs
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logstream)
@@ -81,6 +81,7 @@ class UpdateHandler:
             'api_key': api_key
         }
         self.es = Elasticsearch(**es_connection_kwargs(**self.es_kwargs))
+        
     def _local_cache(self, filename, contents):
         """
         Cache contents of Opensearch record locally
@@ -115,7 +116,7 @@ class UpdateHandler:
         if not os.path.isdir('cache/'):
             os.makedirs('cache/')
 
-    def process_deposits(self, datafile_path: str, prefix: str = '', file_limit = None):
+    def process_deposits(self, datafile_path: str, prefix: str = '', subset_id=None, subset_total=None):
         """
         Process deposits from the dataset file given to this function
         """
@@ -134,8 +135,12 @@ class UpdateHandler:
         with open(datafile_path) as f:
             datasets = [prefix + r.strip() for r in f.readlines()]
 
-        if file_limit != None:
-            datasets = datasets[:file_limit]
+        nfiles = len(datasets)
+        if subset_id is not None:
+            lim0 = int(subset_id * nfiles/subset_total)
+            lim1 = int((subset_id+1) * nfiles/subset_total)
+
+            datasets = datasets[lim0:lim1]
 
         total = len(datasets)
 
