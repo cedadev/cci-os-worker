@@ -36,7 +36,14 @@ build-backend = "poetry.core.masonry.api"
 cci_os_update = "cci_os_worker.all_facets:main"
 cci_delete = "cci_os_worker.deleter:main"
 
-# From FBI Directory Check
+# Originally from opensearch collection regen
+delete_index = "cci_os_worker.collection_regen.delete_index:main"
+diff_indices = "cci_os_worker.collection_regen.diff_indices:main"
+generate_collections = "cci_os_worker.collection_regen.generate_collections:main"
+update_alias = "cci_os_worker.collection_regen.update_alias:main"
+
+
+# Originally from FBI Directory Check
 rescan_dir = "cci_os_worker.directory:rescan_directory"
 [tool.poetry.group.dev.dependencies]
 pytest = "^9.0.3"

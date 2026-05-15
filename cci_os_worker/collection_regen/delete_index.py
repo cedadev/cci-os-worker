@@ -1,0 +1,63 @@
+# encoding: utf-8
+"""
+
+"""
+__author__ = 'Richard Smith'
+__date__ = '17 Aug 2021'
+__copyright__ = 'Copyright 2018 United Kingdom Research and Innovation'
+__license__ = 'BSD - see LICENSE file in top-level package directory'
+__contact__ = 'richard.d.smith@stfc.ac.uk'
+
+import argparse
+from elasticsearch import Elasticsearch
+from elasticsearch.exceptions import NotFoundError
+import ssl
+from cci_facet_scanner.utils.elasticsearch import es_connection_kwargs
+
+def get_args():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        '--target-index',
+        dest='TARGET_INDEX',
+        required=True,
+        help='The index to delete'
+    )
+
+    parser.add_argument(
+        '--es-api-key',
+        dest='ES_API_KEY',
+        required=True,
+        help='Elasticsearch API key to allow write'
+    )
+    parser.add_argument(
+        '--host',
+        dest='HOST',
+        required=False,
+        default='https://elasticsearch.ceda.ac.uk',
+        help='Elasticsearch Host'
+    )
+
+    return parser.parse_args()
+
+
+def main():
+    args = get_args()
+
+    es = Elasticsearch(
+        **es_connection_kwargs(
+            hosts=[args.HOST],
+            api_key=args.ES_API_KEY
+        )
+    )
+
+    # If the alias doesn't already exist then just set the alias
+    try:
+        es.indices.delete(index=args.TARGET_INDEX)
+
+    except NotFoundError:
+        pass
+
+
+if __name__ == '__main__':
+    main()
