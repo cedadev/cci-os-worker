@@ -25,7 +25,9 @@ dependencies = [
     "cci-facet-scanner (>=0.8.2,<1)",
     "slack-sdk (>=3.35.0,<4.0.0)",
     "urllib3 (>=2.7.0,<3.0.0)",
-    "pyasn1 (>=0.6.3,<0.7.0)"
+    "pyasn1 (>=0.6.3,<0.7.0)",
+    "sparqlwrapper (>=2,<3)",
+    "attrs (>=24.2,<25.0)"
 ]
 
 [build-system]
