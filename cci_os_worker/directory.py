@@ -372,9 +372,7 @@ def check_timeout():
         try:
             await aos.stat(str(path))
         except OSError as e:
-            if not pathlib_ignore_error(e):
-                raise
-            return ''
+            raise e
         except ValueError:
             # Non-encodable path
             return ''
