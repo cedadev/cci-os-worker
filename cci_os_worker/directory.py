@@ -6,7 +6,6 @@ __license__ = 'BSD - see LICENSE file in top-level package directory'
 __contact__ = 'daniel.westwood@stfc.ac.uk'
 
 from pathlib import Path
-from pathlib import _ignore_error as pathlib_ignore_error
 from cci_os_worker import logstream
 import logging
 import asyncio
