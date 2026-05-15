@@ -11,7 +11,7 @@
 
 **See release notes for change history**
 
-This package serves as a wrapper for the CCI Opensearch Workflow, which involves several independent packages with multiple dependencies. Primarily the CCI Tagger (cci-tag-scanner) and Facet scanner (cci-facet-scanner) are combined, with elements from the CEDA FBS (ceda-fbs-cci) package to create the components for Opensearch records in Elasticsearch.
+This package serves as a wrapper for the CCI Opensearch Workflow. It makes use of the `facet-scanner` and `ceda-directory-tree` packages from the relevant CEDA repositories. As of 15/05/2026 the `cci-tagger` and `cci-tag-scanner` packages are not used in the CCI Tagging workflow and should be considered decommissioned.
 
 **NOTE:** When publishing a new tagged release of this package, please make sure to rebuild the corresponding Docker image, in the CEDA gitlab repository `cci_opensearch_base`. This repository has a single build-image step that should be rerun (following the steps found there) to ensure any changes to this package are picked up by the OS worker deployment.
 
