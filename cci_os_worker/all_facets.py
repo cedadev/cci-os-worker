@@ -265,13 +265,11 @@ def main(args: dict = None):
     if check_timeout():
         logger.error('Check-timeout failed')
         return
-    
-    file_limit = conf.get('file_limit', None) or args.get('file_limit', None)
 
     set_verbose(args['verbose'])
 
     fs = FacetUpdateHandler(conf, dryrun=args['dryrun'], test=args['test'], halt=args['halt'])
-    fail_list = fs.process_deposits(args['datafile_path'], args['prefix'], file_limit=file_limit)
+    fail_list = fs.process_deposits(args['datafile_path'], args['prefix'])
 
     print('Failed items:')
     print('\n'.join([f'`{i[0]}`: {i[1]}' for i in fail_list]))
