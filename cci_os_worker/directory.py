@@ -303,10 +303,14 @@ class RescanDirs:
 
                 add_files = []
 
-                dfiles = []
                 for ds_count, d in enumerate(ds):
                     # Find all single files
-                    dfiles = [f for f in glob.glob(f'{d}/**/*.*', recursive=True) if re.match(self.file_regex,f)]
+                    
+                    dfiles = []
+                    for f in glob.glob(f'{d}/**/*.*', recursive=True):
+                        if re.match(self.file_regex, f) and os.path.isfile(f):
+                            dfiles.append(f)
+
                     add_files += dfiles
 
                     logger.info(f' > (j: {js_count+1}/{len(jsons)}, d: {ds_count+1}/{len(ds)})')
