@@ -85,14 +85,14 @@ files = [
 
 [[package]]
 name = "cci-facet-scanner"
-version = "0.8.6"
+version = "0.8.7"
 description = "Extracts facets from datasets to add to elasticsearch."
 optional = false
 python-versions = "<4.0,>=3.12"
 groups = ["main"]
 files = [
-    {file = "cci_facet_scanner-0.8.6-py3-none-any.whl", hash = "sha256:16a442b9e90540c2fd4300008885248f8a4b66f27a3910df7efae5f54d10473f"},
-    {file = "cci_facet_scanner-0.8.6.tar.gz", hash = "sha256:dd381a8b5422d17d037dfd0dc0dabe965c19db4912fd23245f4842d4893d0245"},
+    {file = "cci_facet_scanner-0.8.7-py3-none-any.whl", hash = "sha256:b3376d35a39472993761f48f49afdb361d9e1530c57519ea48513089604deb90"},
+    {file = "cci_facet_scanner-0.8.7.tar.gz", hash = "sha256:5cff0ae5ae37f7d75fe2117cd66e82103c63a579c540cd26f89165f28643c73f"},
 ]
 
 [package.dependencies]
@@ -1341,4 +1341,4 @@ python-discovery = ">=1.3.1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4"
-content-hash = "a3385b14deda41e92a9fb8f4931cf12adf782054600451645136f63625f3d1de"
+content-hash = "e1756b500b8db5b68a103a1154a00cc17c858f468ae6340ec0b46730cd772395"
