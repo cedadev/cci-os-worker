@@ -1,6 +1,7 @@
 import netCDF4
 import six
 from dateutil.parser import parse, ParserError
+from datetime import datetime
 import re
 import logging
 import traceback
@@ -146,12 +147,20 @@ class NetCdfFile(GenericFile):
         try:
             # retrieve the start and end times
             if start_time:
-                start_time = parse(start_time)
+                try:
+                  start_time_try = datetime.strptime(start_time,"%y%m-%d %H:%M:%S %Z"):   #handles problematic water vapour time strings
+                except: 
+                  start_time_try = parse(start_time)
+                start_time = start_time_try
             elif times:
                 start_time = times[0]
 
             if end_time:
-                end_time = parse(end_time)
+                try:
+                  end_time_try = datetime.strptime(end_time,"%y%m-%d %H:%M:%S %Z"):   #handles problematic water vapour time strings
+                except: 
+                  end_time_try = parse(end_time)
+                end_time = end_time_try
             elif times:
                 end_time = times[-1]
         except ParserError as err:
