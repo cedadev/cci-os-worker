@@ -74,11 +74,13 @@ class UpdateHandler:
         self._conf = conf
         self._halt = halt
 
-        api_key = conf['elasticsearch']['x-api-key']
+        api_key = conf['elasticsearch'].pop('x-api-key',None)
+        hosts = conf['elasticsearch'].pop('hosts',None)
 
         self.es_kwargs = {
-            'hosts': conf['elasticsearch'].get('hosts',None),
-            'api_key': api_key
+            'hosts': hosts,
+            'api_key': api_key,
+            **conf['elasticsearch']
         }
         self.es = Elasticsearch(**es_connection_kwargs(**self.es_kwargs))
         
