@@ -120,7 +120,7 @@ class FacetUpdateHandler(UpdateHandler):
             logger.info(f'Processing {filepath.split("/")[-1]} ({index}/{total})')
 
         # Get the handler for this filepath
-        handler = self.facet_scanner.get_handler(filepath, **self.es_kwargs)
+        handler = self.facet_scanner.get_handler(filepath) # Not using Elasticsearch connection via handler anymore.
 
         # Extract the facets
         facets = handler.get_facets(filepath)
