@@ -7,7 +7,7 @@
 ## CEDA Dependencies
 
 ![Static Badge](https://img.shields.io/badge/elasticsearch%20v8-3BBEB1)
-![Static Badge](https://img.shields.io/badge/MOLES%20API%20v2-00628D)
+![Static Badge](https://img.shields.io/badge/MOLES%20API%20v3-00628D)
 
 **See release notes for change history**
 
