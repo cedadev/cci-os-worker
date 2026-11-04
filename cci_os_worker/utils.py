@@ -19,6 +19,8 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logstream)
 logger.propagate = False
 
+MOLES_API_URL = "http://api.catalogue.ceda.ac.uk/api/v3"
+
 def set_verbose(level: int):
     """
     Reset the logger basic config.

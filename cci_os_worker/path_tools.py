@@ -14,10 +14,11 @@ import hashlib
 from requests.exceptions import Timeout
 from ceda_directory_tree import DatasetNode
 
-from typing import Optional, Tuple, List
+from typing import Optional, tuple
 
 import logging
 from cci_os_worker import logstream
+from cci_os_worker.utils import MOLES_API_URL, MOLES_BASE_API
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logstream)
@@ -260,7 +261,7 @@ def load_moles_mapping(mapping_file):
 class PathTools:
     def __init__(
         self,
-        moles_mapping_url: str = "http://api.catalogue.ceda.ac.uk/api/v2/observations.json/",
+        moles_mapping_url: str = f"{MOLES_API_URL}/observations.json/",
         mapping_file: Optional[str] = None,
         spot_file: str = None,
     ):
@@ -288,7 +289,7 @@ class PathTools:
 
     def generate_path_metadata(
         self, path: str
-    ) -> Tuple[Optional[dict], Optional[bool]]:
+    ) -> tuple[Optional[dict], Optional[bool]]:
         """
         Take path and process it to generate metadata as used in ceda directories index
         :param path: path to retrieve metadata for
@@ -371,7 +372,7 @@ class PathTools:
         :return: Metadata dict | None
         """
 
-        url = f"http://api.catalogue.ceda.ac.uk/api/v0/obs/get_info{path}"
+        url = f"{MOLES_BASE_API}/obs/get_info{path}"
         try:
             response = requests.get(url, timeout=10)
         except Timeout:
