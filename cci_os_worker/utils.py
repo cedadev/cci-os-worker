@@ -20,6 +20,7 @@ logger.addHandler(logstream)
 logger.propagate = False
 
 MOLES_API_URL = "http://api.catalogue.ceda.ac.uk/api/v3"
+MOLES_BASE_API = "http://api.catalogue.ceda.ac.uk/api/v0"
 
 def set_verbose(level: int):
     """
