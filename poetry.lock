@@ -85,18 +85,19 @@ files = [
 
 [[package]]
 name = "cci-facet-scanner"
-version = "0.8.8"
+version = "0.8.9"
 description = "Extracts facets from datasets to add to elasticsearch."
 optional = false
 python-versions = "<4.0,>=3.12"
 groups = ["main"]
 files = [
-    {file = "cci_facet_scanner-0.8.8-py3-none-any.whl", hash = "sha256:00fcdba2695304cda1f8eb96dcf596ce3f948c620183f36135c22a7d2758d97e"},
-    {file = "cci_facet_scanner-0.8.8.tar.gz", hash = "sha256:dfdefa6f5e4a68d9f2bb8efdb3982b7c1c0578bb9ed2ba66d4143fcfd9635813"},
+    {file = "cci_facet_scanner-0.8.9-py3-none-any.whl", hash = "sha256:70143f82eec4fad49448182a9ec45d5050448571d56c6164254b1a0aaec9a99e"},
+    {file = "cci_facet_scanner-0.8.9.tar.gz", hash = "sha256:d946435080a7fd4ae071bf03000d26c5b47d53ea02c0a92e8e6a0be5583614e2"},
 ]
 
 [package.dependencies]
 ceda-directory-tree = ">=1.3.0"
+certifi = ">=2026.10.18,<2027.0.0"
 elasticsearch = ">=8,<9"
 jinja2 = ">=3,<4"
 netcdf4 = ">=1.7.2,<2.0.0"
@@ -128,14 +129,14 @@ tox = ">=4.24.1,<5.0.0"
 
 [[package]]
 name = "certifi"
-version = "2026.4.22"
+version = "2026.10.23"
 description = "Python package for providing Mozilla's CA Bundle."
 optional = false
 python-versions = ">=3.7"
 groups = ["main"]
 files = [
-    {file = "certifi-2026.4.22-py3-none-any.whl", hash = "sha256:3cb2210c8f88ba2318d29b0388d1023c8492ff72ecdde4ebdaddbb13a31b1c4a"},
-    {file = "certifi-2026.4.22.tar.gz", hash = "sha256:8d455352a37b71bf76a79caa83a3d6c25afee4a385d632127b6afb3963f1c580"},
+    {file = "certifi-2026.10.23-py3-none-any.whl", hash = "sha256:e9b54de76e530bb6cf0ccd036787103acb58fd42ba930ea8bf948ddbaa2f61d1"},
+    {file = "certifi-2026.10.23.tar.gz", hash = "sha256:a9895e6e2758b371e0545e321a3a8fd1fcfd9829ada8824a936dfb16aaaf36cd"},
 ]
 
 [[package]]
@@ -1341,4 +1342,4 @@ python-discovery = ">=1.3.1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4"
-content-hash = "3c8ebc4ce9a1e8eb3d23c74ec8356e4443b253712a44eab00fc550dae1901d49"
+content-hash = "716b9585e6c889dec029c65c2628d7286a964571bcc1b4c3c9d1983cb26ea1a8"
