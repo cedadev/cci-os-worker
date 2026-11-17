@@ -14,7 +14,7 @@ import hashlib
 from requests.exceptions import Timeout
 from ceda_directory_tree import DatasetNode
 
-from typing import Optional, tuple
+from typing import Optional, Tuple
 
 import logging
 from cci_os_worker import logstream
